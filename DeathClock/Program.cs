@@ -20,12 +20,7 @@ namespace DeathClock
             var people = new ConcurrentBag<Person>();
             Parallel.ForEach(peopleTitle, p =>
                 {
-                    if (p == "English_civil_war")
-                    {
-                        int x = 0;
-                        x++;
-
-                    }
+                    
                     try
                     {
                         var person = Person.Create(p);
@@ -47,13 +42,12 @@ namespace DeathClock
                     
                 });
 
-            //foreach (var person in people)
-            //{
-            //    Console.WriteLine(person);
-            //}
+            foreach (var person in people)
+            {
+                Console.WriteLine(person);
+            }
 
-            //var ordered = people.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount).ToArray();
-            Console.WriteLine(people.Count);
+            var ordered = people.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount).ToArray();
             Console.ReadKey();
         }
 

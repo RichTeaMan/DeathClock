@@ -74,7 +74,6 @@ namespace DeathClock
             }
             if (birth == null)
                 return null;
-                //throw new ArgumentException("A birthdate could not be found");
             person.BirthDate = birth.Value;
 
             DateTime? death = null;
@@ -86,11 +85,11 @@ namespace DeathClock
             }
             person.DeathDate = death;
 
-            //foreach (var word in DeathWords)
-            //{
-            //    Regex wordRegex = new Regex(word);
-            //    person.DeathWordCount += wordRegex.Matches(jsonContent).Count;
-            //}
+            foreach (var word in DeathWords)
+            {
+                Regex wordRegex = new Regex(word);
+                person.DeathWordCount += wordRegex.Matches(jsonContent).Count;
+            }
 
             return person;
 
