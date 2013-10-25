@@ -24,9 +24,9 @@ namespace DeathClock
                     {
                         people.Add(new Person(p));
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        Console.WriteLine("Error creating person '{0}'.", p);
+                        Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
                     }
                     
                 });

@@ -9,7 +9,7 @@ namespace DeathClock
 {
     public class Person
     {
-        public static string[] DeathWords = new string[] {"cancer", "ill", "sick", "accident"};
+        public static string[] DeathWords = new string[] { "cancer", "ill", "sick", "accident" };
         public string Name { get; private set; }
         public DateTime BirthDate { get; private set; }
         public DateTime? DeathDate { get; private set; }
@@ -26,7 +26,7 @@ namespace DeathClock
         }
         public bool IsDead
         {
-            get{return DeathDate != null;}
+            get { return DeathDate != null; }
         }
         public int DeathWordCount { get; private set; }
 
@@ -38,23 +38,32 @@ namespace DeathClock
             if (nameMatch.Success)
                 Name = nameMatch.Value.Trim().Replace("\n", "");
             else
-                throw new ArgumentException("A name could not be found.");
+                Name = title.Replace('_', ' ');
 
-            string dateFormat = "yyyy|M|d";
+            DateTime? birth;
+            birth = GetDate(jsonContent,
+                @"(?i)(?<={{birth date and age\|(df=y(es|)\||))\d+\|\d+\|\d+",
+                "yyyy|M|d");
 
-            Regex birth = new Regex(@"(?i)(?<={{birth date and age\|(df=y(es|)\||))\d+\|\d+\|\d+");
-            
-            var birthMatch = birth.Match(jsonContent);
-            if (birthMatch.Success)
-                BirthDate = DateTime.ParseExact(birthMatch.Value, dateFormat, null);
-            else
+            if (birth == null)
+            {
+                birth = GetDate(jsonContent, @"(?<=birth_date\s+=\s+)[^\|]+", "d MMMM yyyy");
+            }
+            if (birth == null)
                 throw new ArgumentException("A birthdate could not be found");
 
-            Regex death = new Regex(@"(?i)(?<={{Death date and age\|(df=y(es|)\||))\d+\|\d+\|\d+");
+            BirthDate = birth.Value;
 
-            var deathMatch = death.Match(jsonContent);
-            if (deathMatch.Success)
-                DeathDate = DateTime.ParseExact(deathMatch.Value, dateFormat, null);
+            DateTime? death;
+            death = GetDate(jsonContent,
+                @"(?i)(?<={{Death date and age\|(df=y(es|)\||))\d+\|\d+\|\d+",
+                "yyyy|M|d");
+            if (death == null)
+            {
+                death = GetDate(jsonContent, @"(?<=death_date\s+=\s+)[^\|]+", "d MMMM yyyy");
+            }
+
+            DeathDate = death;
 
             foreach (var word in DeathWords)
             {
@@ -74,5 +83,22 @@ namespace DeathClock
                 DeathWordCount);
         }
 
+        private DateTime? GetDate(string content, string regex, string dateFormat)
+        {
+            Regex dateRegex = new Regex(regex);
+
+            var match = dateRegex.Match(content);
+            if (match.Success)
+            {
+                try
+                {
+                    var date = DateTime.ParseExact(match.Value, dateFormat, null);
+                    return date;
+                }
+                catch { }
+
+            }
+            return null;
+        }
     }
 }

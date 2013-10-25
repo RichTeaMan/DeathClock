@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -13,10 +14,20 @@ namespace DeathClock
 
         public static string GetPage(string title)
         {
+            if (!Directory.Exists("Cache"))
+                Directory.CreateDirectory("Cache");
+
+            string cacheFile = string.Format("Cache/{0}.txt", title);
+            if (File.Exists(cacheFile))
+                return File.ReadAllText(cacheFile);
+
             WebClient client = new WebClient();
             client.Headers.Add("User-Agent", "DeathClock");
             string url = string.Format(apiUrl, title);
-            return client.DownloadString(url);
+            string contents = client.DownloadString(url);
+
+            File.WriteAllText(cacheFile, contents);
+            return contents;
         }
     }
 }
