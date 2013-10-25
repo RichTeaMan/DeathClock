@@ -21,6 +21,7 @@ namespace DeathClock
                 new DateParser(@"(?<=birth date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<]+", "MMMM d, yyyy"),
+                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
                 new DateParser(@"(?<= born )[^\)]+", "d MMMM yyyy")
             };
 
