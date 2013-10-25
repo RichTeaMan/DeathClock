@@ -9,34 +9,37 @@ using System.Threading.Tasks;
 
 namespace DeathClock
 {
-    public class Utilities
+    public static class Utilities
     {
+        const string CACHE_FOLDER = "Cache";
+        const string USER_AGENT = "DeathClock";
+
         static string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
         static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
-
         public static string GetPage(string title)
         {
-            if (!Directory.Exists("Cache"))
-                Directory.CreateDirectory("Cache");
+            if (!Directory.Exists(CACHE_FOLDER))
+                Directory.CreateDirectory(CACHE_FOLDER);
 
-            string cacheFile = string.Format("Cache/{0}.txt", title);
+            string cacheFileName = string.Format("{0}/{1}.html", CACHE_FOLDER, title);
 
             string contents;
-
-            if (File.Exists(cacheFile))
+            if (File.Exists(cacheFileName))
             {
-                contents = File.ReadAllText(cacheFile);
+                contents = File.ReadAllText(cacheFileName);
             }
             else
             {
                 WebClient client = new WebClient();
-                client.Headers.Add("User-Agent", "DeathClock");
+                client.Headers.Add("User-Agent", USER_AGENT);
                 string url = string.Format(apiUrl, title);
                 contents = client.DownloadString(url);
 
-                File.WriteAllText(cacheFile, contents);
+                File.WriteAllText(cacheFileName, contents);
             }
+
+            // some pages signal a redirect. The redirect should be returned instead
             var redirect = redirectRegex.Match(contents);
             if (redirect.Success)
             {
@@ -44,10 +47,16 @@ namespace DeathClock
 
                 // delete required to handle Windows case-insensitve file system
                 if(title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
-                    File.Delete(cacheFile);
+                    File.Delete(cacheFileName);
                 contents = GetPage(redirectTitle);
             }
             return contents;
         }
+
+        public static StringBuilder AppendLine(this StringBuilder stringBuilder, string value, params object[] arg)
+        {
+            return stringBuilder.AppendLine(string.Format(value, arg));
+        }
+
     }
 }

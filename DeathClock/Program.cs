@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -47,8 +48,47 @@ namespace DeathClock
                 Console.WriteLine(person);
             }
 
-            var ordered = people.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount).ToArray();
+            
+            Console.WriteLine("{0} people found.", people.Count);
+            WriteReport(people.ToList());
+
             Console.ReadKey();
+        }
+
+        static void WriteReport(IList<Person> persons)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("<html>");
+            sb.AppendLine("<head>");
+            sb.AppendLine("<title>Death Clock</title>");
+            sb.AppendLine("</head>");
+            sb.AppendLine("<body>");
+            sb.AppendLine("<table>");
+
+            sb.AppendLine("<tr>");
+            sb.AppendLine("<th>Name</th>");
+            sb.AppendLine("<th>Birth Date</th>");
+            sb.AppendLine("<th>Death Date</th>");
+            sb.AppendLine("<th>Age</th>");
+            sb.AppendLine("<th>Death Word Count</th>");
+            sb.AppendLine("</tr>");
+
+            foreach (var person in persons.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
+            {
+                sb.AppendLine("<tr>");
+                sb.AppendLine("<td>{0}</td>", person.Name);
+                sb.AppendLine("<td>{0}</td>", person.BirthDate);
+                sb.AppendLine("<td>{0}</td>", person.DeathDate);
+                sb.AppendLine("<td>{0}</td>", person.Age);
+                sb.AppendLine("<td>{0}</td>", person.DeathWordCount);
+                sb.AppendLine("</tr>");
+            }
+
+            sb.AppendLine("</table>");
+            sb.AppendLine("</body>");
+            sb.AppendLine("</html>");
+
+            File.WriteAllText("Report.html", sb.ToString());
         }
 
         static string[] GetPeopleTitles(string listTitle)
