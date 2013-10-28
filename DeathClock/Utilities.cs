@@ -15,6 +15,7 @@ namespace DeathClock
         const string USER_AGENT = "DeathClock";
 
         public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
+        public const string Url = "http://en.wikipedia.org/wiki/{0}";
         static string redirectContains = "#REDIRECT";
         static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 

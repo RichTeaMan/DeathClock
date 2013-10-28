@@ -61,9 +61,21 @@ namespace DeathClock
         }
         public int DeathWordCount { get; private set; }
 
+        public string Title { get; private set; }
+
+        public string Url
+        {
+            get
+            {
+                return string.Format(Utilities.Url, Title);
+            }
+        }
+
         public static Person Create(string title)
         {
             var person = new Person();
+
+            person.Title = title;
 
             string jsonContent = Utilities.GetPage(title);
             Regex name = new Regex(@"(?<=name\s+=)[^\|]+");

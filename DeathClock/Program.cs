@@ -61,7 +61,8 @@ namespace DeathClock
 
             foreach (var person in persons.Where(p => p.IsDead == false && p.Age < 120).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
             {
-                table.AddRow(person.Name, person.BirthDate, person.DeathDate, person.Age, person.DeathWordCount);
+                string name = string.Format("<a href=\"{0}\">{1}</a>", person.Url, person.Name);
+                table.AddRow(name, person.BirthDate, person.DeathDate, person.Age, person.DeathWordCount);
             }
 
             var sb = new StringBuilder();
