@@ -14,7 +14,8 @@ namespace DeathClock
         const string CACHE_FOLDER = "Cache";
         const string USER_AGENT = "DeathClock";
 
-        static string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
+        public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
+        static string redirectContains = "#REDIRECT";
         static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
         public static string GetPage(string title)
@@ -40,15 +41,18 @@ namespace DeathClock
             }
 
             // some pages signal a redirect. The redirect should be returned instead
-            var redirect = redirectRegex.Match(contents);
-            if (redirect.Success)
+            if (contents.Contains(redirectContains))
             {
-                string redirectTitle = redirect.Value.Replace(' ', '_');
+                var redirect = redirectRegex.Match(contents);
+                if (redirect.Success)
+                {
+                    string redirectTitle = redirect.Value.Replace(' ', '_');
 
-                // delete required to handle Windows case-insensitve file system
-                if(title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
-                    File.Delete(cacheFileName);
-                contents = GetPage(redirectTitle);
+                    // delete required to handle Windows case-insensitve file system
+                    if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
+                        File.Delete(cacheFileName);
+                    contents = GetPage(redirectTitle);
+                }
             }
             return contents;
         }

@@ -18,8 +18,12 @@ namespace DeathClock
             var peopleTitle = new List<string>();
 
             peopleTitle.AddRange(GetPeopleTitles("List_of_English_people"));
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Scots"));
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Welsh_people"));
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people"));
+
             var people = new ConcurrentBag<Person>();
-            Parallel.ForEach(peopleTitle, p =>
+            Parallel.ForEach(peopleTitle.Distinct(), p =>
                 {
                     
                     try
@@ -29,11 +33,6 @@ namespace DeathClock
                         {
                             people.Add(person);
                             Console.WriteLine("{0} added.", p);
-                        }
-                        else
-                        {
-                            int x = 0;
-                            x++;
                         }
                     }
                     catch (Exception ex)
@@ -57,34 +56,24 @@ namespace DeathClock
 
         static void WriteReport(IList<Person> persons)
         {
+            var table = new HtmlTable();
+            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Death Word Count");
+
+            foreach (var person in persons.Where(p => p.IsDead == false && p.Age < 120).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
+            {
+                table.AddRow(person.Name, person.BirthDate, person.DeathDate, person.Age, person.DeathWordCount);
+            }
+
             var sb = new StringBuilder();
+
             sb.AppendLine("<html>");
             sb.AppendLine("<head>");
             sb.AppendLine("<title>Death Clock</title>");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
-            sb.AppendLine("<table>");
 
-            sb.AppendLine("<tr>");
-            sb.AppendLine("<th>Name</th>");
-            sb.AppendLine("<th>Birth Date</th>");
-            sb.AppendLine("<th>Death Date</th>");
-            sb.AppendLine("<th>Age</th>");
-            sb.AppendLine("<th>Death Word Count</th>");
-            sb.AppendLine("</tr>");
+            sb.Append(table.GetHtml());
 
-            foreach (var person in persons.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
-            {
-                sb.AppendLine("<tr>");
-                sb.AppendLine("<td>{0}</td>", person.Name);
-                sb.AppendLine("<td>{0}</td>", person.BirthDate);
-                sb.AppendLine("<td>{0}</td>", person.DeathDate);
-                sb.AppendLine("<td>{0}</td>", person.Age);
-                sb.AppendLine("<td>{0}</td>", person.DeathWordCount);
-                sb.AppendLine("</tr>");
-            }
-
-            sb.AppendLine("</table>");
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
 
