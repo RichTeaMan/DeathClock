@@ -74,7 +74,7 @@ namespace DeathClock
         {
             get
             {
-                return string.Format(Utilities.Url, Title);
+                return string.Format(Utilities.Url, Title.Replace(' ', '_'));
             }
         }
 
@@ -90,9 +90,10 @@ namespace DeathClock
         {
             var person = new Person();
 
-            person.Title = title;
-
             string jsonContent = Utilities.GetPage(title);
+
+            person.Title = GetTitle(jsonContent);
+
             Regex name = new Regex(@"(?<=name\s+=)[^\|]+");
             var nameMatch = name.Match(jsonContent);
             if (nameMatch.Success)
@@ -128,6 +129,15 @@ namespace DeathClock
 
             return person;
 
+        }
+
+        private static string GetTitle(string jsonContext)
+        {
+            Regex titleRegex = new Regex("(?<=\"title\":\")[^\"]+");
+            var match = titleRegex.Match(jsonContext);
+            if(match != null)
+                return match.Value;
+            return null;
         }
 
         public override string ToString()
