@@ -34,15 +34,14 @@ namespace DeathClock
             // that particular link
             if(title.Contains('|'))
             {
-                title = title.Substring(0, title.IndexOf('|') - 1);
+                title = title.Substring(0, title.IndexOf('|'));
             }
             if (title.Contains('!'))
             {
-                title = title.Substring(0, title.IndexOf('!') - 1);
+                title = title.Substring(0, title.IndexOf('!')).Replace("{", "").Replace("}", "");;
             }
-            title = title.Replace("\\", "").Replace("/", "_").Replace('#', '_').Replace("{", "").Replace("}", "").Replace("\"", "").Replace(' ', '_');
 
-            string cacheFileName = string.Format("{0}/{1}.html", CACHE_FOLDER, title);
+            string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
 
             string contents;
             if (File.Exists(cacheFileName))
@@ -56,6 +55,14 @@ namespace DeathClock
                 string url = string.Format(apiUrl, title);
                 contents = client.DownloadString(url);
 
+                // remove comments
+                Regex commentRegex = new Regex("<!--(.*?)-->");
+                var comments = commentRegex.Matches(contents);
+                foreach (Match comment in comments)
+                {
+                    contents = contents.Replace(comment.Value, string.Empty);
+                }
+
                 File.WriteAllText(cacheFileName, contents);
             }
 
@@ -66,6 +73,9 @@ namespace DeathClock
                 if (redirect.Success)
                 {
                     string redirectTitle = redirect.Value.Replace(' ', '_');
+
+                    if (redirectTitle == title)
+                        throw new Exception("Endless redirect loop detected.");
 
                     // delete required to handle Windows case-insensitve file system
                     if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
