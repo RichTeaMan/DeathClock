@@ -21,6 +21,7 @@ namespace DeathClock
             peopleTitle.AddRange(GetPeopleTitles("List_of_Scots"));
             peopleTitle.AddRange(GetPeopleTitles("List_of_Welsh_people"));
             peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people"));
+            peopleTitle.AddRange(GetPeopleTitles("Lists_of_Americans"));
 
             var invalidPeople = new ConcurrentBag<string>();
 
@@ -117,10 +118,25 @@ namespace DeathClock
                 // check for other people lists in this list
                 Regex listRegex = new Regex(@"(?<=\[\[)List of[^\]]+");
                 var listMatches = listRegex.Matches(peoplePage);
-                foreach (Match match in listMatches)
+                if (listMatches.Count > 0)
                 {
-                    if (!previousLists.Contains(match.Value))
-                        peopleTitles.AddRange(GetPeopleTitles(match.Value, previousLists, level + 1));
+                    var listNames = new List<string>();
+                    foreach (Match match in listMatches)
+                    {
+                        listNames.Add(match.Value);
+                    }
+                    var titles = new ConcurrentBag<string>();
+                    Parallel.ForEach(listNames, name =>
+                    {
+                        if (!previousLists.Contains(name))
+                        {
+                            foreach (var title in GetPeopleTitles(name, previousLists, level + 1))
+                            {
+                                titles.Add(title);
+                            }
+                        }
+                    });
+                    peopleTitles.AddRange(titles.Distinct());
                 }
 
                 return peopleTitles.ToArray();
