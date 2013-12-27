@@ -24,6 +24,18 @@ namespace DeathClock
             if (!Directory.Exists(CACHE_FOLDER))
                 Directory.CreateDirectory(CACHE_FOLDER);
 
+            // title before pipe is the page that should be linked, after pipe is the text for
+            // that particular link
+            if(title.Contains('|'))
+            {
+                title = title.Substring(0, title.IndexOf('|') - 1);
+            }
+            if (title.Contains('!'))
+            {
+                title = title.Substring(0, title.IndexOf('!') - 1);
+            }
+            title = title.Replace("\\", "").Replace("/", "_").Replace('#', '_').Replace("{", "").Replace("}", "").Replace("\"", "");
+
             string cacheFileName = string.Format("{0}/{1}.html", CACHE_FOLDER, title);
 
             string contents;
