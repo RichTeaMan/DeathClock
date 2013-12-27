@@ -81,7 +81,7 @@ namespace DeathClock
             sb.AppendLine("<title>Death Clock</title>");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
-
+            sb.AppendLine("<h3>Death List generated at {0}.</h3>", DateTime.Now);
             sb.Append(table.GetHtml());
 
             sb.AppendLine("</body>");
