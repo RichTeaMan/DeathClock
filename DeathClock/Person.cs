@@ -61,13 +61,20 @@ namespace DeathClock
         {
             get
             {
-                var endDate = DeathDate ?? DateTime.Now;
-                return (DateTime.MinValue + (endDate - BirthDate)).Year - 1;
+                try
+                {
+                    var endDate = DeathDate ?? DateTime.Now;
+                    return (DateTime.MinValue + (endDate - BirthDate)).Year - 1;
+                }
+                catch(Exception ex)
+                {
+                    return -1;
+                }
             }
         }
         public bool IsDead
         {
-            get { return DeathDate != null; }
+            get { return DeathDate != null || Age >= 110; }
         }
         public int DeathWordCount { get; private set; }
 
