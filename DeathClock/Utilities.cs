@@ -11,7 +11,13 @@ namespace DeathClock
 {
     public static class Utilities
     {
-        const string CACHE_FOLDER = "Cache";
+        static string CACHE_FOLDER
+        {
+            get
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Cache");
+            }
+        }
         const string USER_AGENT = "DeathClock";
 
         public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
@@ -34,7 +40,7 @@ namespace DeathClock
             {
                 title = title.Substring(0, title.IndexOf('!') - 1);
             }
-            title = title.Replace("\\", "").Replace("/", "_").Replace('#', '_').Replace("{", "").Replace("}", "").Replace("\"", "");
+            title = title.Replace("\\", "").Replace("/", "_").Replace('#', '_').Replace("{", "").Replace("}", "").Replace("\"", "").Replace(' ', '_');
 
             string cacheFileName = string.Format("{0}/{1}.html", CACHE_FOLDER, title);
 
