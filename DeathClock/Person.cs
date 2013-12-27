@@ -45,7 +45,8 @@ namespace DeathClock
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d, yyyy"),
                 new DateParser(@"(?<=Death date and age\|mf=yes\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd, yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
+                // n|death_date=[[Date of death|4 August 1265]]\n|
             };
         }
 
@@ -61,7 +62,7 @@ namespace DeathClock
             get
             {
                 var endDate = DeathDate ?? DateTime.Now;
-                return endDate.Year - BirthDate.Year;
+                return (DateTime.MinValue + (endDate - BirthDate)).Year - 1;
             }
         }
         public bool IsDead
