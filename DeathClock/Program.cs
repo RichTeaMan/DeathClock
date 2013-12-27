@@ -22,6 +22,8 @@ namespace DeathClock
             peopleTitle.AddRange(GetPeopleTitles("List_of_Welsh_people"));
             peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people"));
 
+            var invalidPeople = new ConcurrentBag<string>();
+
             var people = new ConcurrentBag<Person>();
             Parallel.ForEach(peopleTitle.Distinct(), p =>
                 {
@@ -33,6 +35,10 @@ namespace DeathClock
                         {
                             people.Add(person);
                             Console.WriteLine("{0} added.", p);
+                        }
+                        else
+                        {
+                            invalidPeople.Add(p);
                         }
                     }
                     catch (Exception ex)
@@ -51,6 +57,8 @@ namespace DeathClock
             Console.WriteLine("{0} people found.", people.Count);
             WriteReport(people.ToList());
 
+            File.WriteAllLines("InvalidPeople.txt", invalidPeople);
+
             Console.ReadKey();
         }
 
@@ -62,7 +70,8 @@ namespace DeathClock
             foreach (var person in persons.Where(p => p.IsDead == false && p.Age < 120).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
             {
                 string name = string.Format("<a href=\"{0}\">{1}</a>", person.Url, person.Name);
-                table.AddRow(name, person.BirthDate, person.DeathDate, person.Age, person.DeathWordCount);
+                string json = string.Format("(<a href=\"{0}\">Json</a>)", person.JsonUrl);
+                table.AddRow(name + " " + json, person.BirthDate, person.DeathDate, person.Age, person.DeathWordCount);
             }
 
             var sb = new StringBuilder();
@@ -81,21 +90,46 @@ namespace DeathClock
             File.WriteAllText("Report.html", sb.ToString());
         }
 
-        static string[] GetPeopleTitles(string listTitle)
+        static string[] GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
         {
-            string peoplePage = Utilities.GetPage(listTitle);
-            var peopleTitles = new List<string>();
-            Regex personRegex = new Regex(@"(?<=\[\[)[^\[\]\|]+");
-
-            var matches = personRegex.Matches(peoplePage);
-            foreach (Match match in matches)
+            if ((previousLists != null && previousLists.Contains(listTitle)) || level >= 2)
+                return new string[0];
+            Console.WriteLine("Getting {0}.", listTitle);
+            try
             {
-                if (!match.Value.Contains("Category") && !match.Value.Contains("List") && !match.Value.Contains(" people"))
-                    peopleTitles.Add(match.Value.Replace(' ', '_'));
-            }
-            return peopleTitles.ToArray();
-        }
+                string peoplePage = Utilities.GetPage(listTitle);
+                if (previousLists == null)
+                    previousLists = new List<string>();
+                previousLists.Add(listTitle);
 
-        
+                var peopleTitles = new List<string>();
+                Regex personRegex = new Regex(@"(?<=\*\[\[)[^\[\]\|]+");
+
+                var matches = personRegex.Matches(peoplePage);
+                foreach (Match match in matches)
+                {
+                    if (!match.Value.Contains("Category") && !match.Value.Contains("List") && !match.Value.Contains(" people") && !match.Value.Contains(':'))
+                    {
+                        peopleTitles.Add(match.Value.Replace(' ', '_'));
+                    }
+                }
+
+                // check for other people lists in this list
+                Regex listRegex = new Regex(@"(?<=\[\[)List of[^\]]+");
+                var listMatches = listRegex.Matches(peoplePage);
+                foreach (Match match in listMatches)
+                {
+                    if (!previousLists.Contains(match.Value))
+                        peopleTitles.AddRange(GetPeopleTitles(match.Value, previousLists, level + 1));
+                }
+
+                return peopleTitles.ToArray();
+            }
+            catch
+            {
+                return new string[0];
+            }
+
+        }
     }
 }
