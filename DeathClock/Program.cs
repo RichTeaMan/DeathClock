@@ -56,39 +56,52 @@ namespace DeathClock
 
             
             Console.WriteLine("{0} people found.", people.Count);
-            WriteReport(people.ToList());
+            WriteReports(people.ToList());
 
             File.WriteAllLines("InvalidPeople.txt", invalidPeople);
 
             Console.ReadKey();
         }
 
-        static void WriteReport(IList<Person> persons)
+        static void WriteReports(List<Person> persons)
+        {
+            WriteReport(persons.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", "TheLiving.html");
+            for (int i = 1990; i <= DateTime.Now.Year; i++)
+            {
+                string title = string.Format("{0} Deaths", i);
+                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), title, title.Replace(" ", "") + ".html");
+            }
+        }
+
+        static void WriteReport(IEnumerable<Person> persons, string title, string path)
         {
             var table = new HtmlTable();
-            table.SetHeaders("Name", "Birth Date", "Age", "Death Word Count");
+            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Death Word Count");
 
-            foreach (var person in persons.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount))
+            foreach (var person in persons)
             {
                 string name = string.Format("<a href=\"{0}\">{1}</a>", person.Url, person.Title);
                 string json = string.Format("(<a href=\"{0}\">Json</a>)", person.JsonUrl);
-                table.AddRow(name + " " + json, person.BirthDate.ToShortDateString(), person.Age, person.DeathWordCount);
+                table.AddRow(name + " " + json, person.BirthDate.ToShortDateString(), person.DeathDate != null ? person.DeathDate.Value.ToShortDateString() : " - ", person.Age, person.DeathWordCount);
             }
 
             var sb = new StringBuilder();
 
             sb.AppendLine("<html>");
             sb.AppendLine("<head>");
-            sb.AppendLine("<title>Death Clock</title>");
+            sb.AppendLine("<title>{0}</title>", title);
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
-            sb.AppendLine("<h3>Death List generated at {0}.</h3>", DateTime.Now);
+            sb.AppendLine("<h1>{0}</h1>", title);
+            sb.AppendLine("<h3>List generated at {0}.</h3>", DateTime.Now);
+            sb.AppendLine("<p>Showing {0} people.</p>", persons.Count());
+            sb.AppendLine("<p>Average age is {0}.", persons.Average(p => p.Age));
             sb.Append(table.GetHtml());
 
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
 
-            File.WriteAllText("Report.html", sb.ToString());
+            File.WriteAllText(path, sb.ToString());
         }
 
         static string[] GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
