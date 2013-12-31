@@ -25,13 +25,31 @@ namespace DeathClock
             {
                 try
                 {
-                    var date = DateTime.ParseExact(match.Value.Replace("\\n", "").Trim(), DateFormat, null);
+                    var value = DateParser.AbbreviationFix(match.Value).Replace("\\n", "").Trim();
+                    var date = DateTime.ParseExact(value, DateFormat, null);
                     return date;
                 }
                 catch { }
 
             }
             return null;
+        }
+
+        private static string AbbreviationFix(string match)
+        {
+            match = match.Replace(", ", " ");
+            match = match.Replace("Jan ", "January ");
+            match = match.Replace("Feb ", "February ");
+            match = match.Replace("Mar ", "March ");
+            match = match.Replace("Jun ", "June ");
+            match = match.Replace("Jul ", "July ");
+            match = match.Replace("Aug ", "August ");
+            match = match.Replace("Sep ", "September ");
+            match = match.Replace("Sept ", "September ");
+            match = match.Replace("Oct ", "October ");
+            match = match.Replace("Nov ", "November ");
+            match = match.Replace("Dec ", "December ");
+            return match;
         }
     }
 }
