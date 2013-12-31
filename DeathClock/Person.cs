@@ -77,7 +77,7 @@ namespace DeathClock
                     var endDate = DeathDate ?? DateTime.Now;
                     return (DateTime.MinValue + (endDate - BirthDate)).Year - 1;
                 }
-                catch(Exception ex)
+                catch
                 {
                     return -1;
                 }
