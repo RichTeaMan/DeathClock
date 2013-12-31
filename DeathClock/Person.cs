@@ -152,7 +152,7 @@ namespace DeathClock
 
             foreach (var word in DeathWords)
             {
-                Regex wordRegex = new Regex(word);
+                Regex wordRegex = new Regex(string.Format(" {0} ", word));
                 person.DeathWordCount += wordRegex.Matches(jsonContent).Count;
             }
 
