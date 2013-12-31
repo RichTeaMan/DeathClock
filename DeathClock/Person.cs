@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DeathClock
@@ -12,17 +14,27 @@ namespace DeathClock
         public static DateParser[] BirthDateParsers { get; private set; }
         public static DateParser[] DeathDateParsers { get; private set; }
 
+        private static ConcurrentStack<string> errors;
+
         static Person()
         {
+            errors = new ConcurrentStack<string>();
             BirthDateParsers = new DateParser[]
             { 
-                new DateParser(@"(?i)(?<={{birth date and age\|(df=y(es|)\||))\d+\|\d+\|\d+",
+                new DateParser(@"(?i)(?<={{birth[ -_]date and age\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
-                new DateParser(@"(?<=birth date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
+                new DateParser(@"(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy"),
-                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "MMMM d, yyyy"),
+                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "MMMM d yyyy"),
                 new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
-                new DateParser(@"(?<= born )[^\)]+", "d MMMM yyyy")
+                new DateParser(@"(?<= born )[^\)]+", "d MMMM yyyy"),
+                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy"),
+                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+", "yyyy"),
+                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\d+", "yyyy"),
+                new DateParser(@"(?i)(?<={{birth-date\|)\d+", "yyyy"),
+                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
+                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
+                new DateParser(@"(?<=\(c\. )\d+", "yyyy"),
             };
 
             DeathDateParsers = new DateParser[]
@@ -34,7 +46,7 @@ namespace DeathClock
                 new DateParser(@"(?<=death-date and age\|df=yes\|)[^\|\]]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<]+", "MMMM d, yyyy"),
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<]+", "MMMM d yyyy"),
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
                 new DateParser(@"(?<= died )[^\)]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
@@ -42,15 +54,14 @@ namespace DeathClock
                 new DateParser(@"(?<=death year and age\|df=yes\|)[^\|\]]+", "yyyy"),
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+", "yyyy"),
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d, yyyy"),
+                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy"),
                 new DateParser(@"(?<=Death date and age\|mf=yes\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd, yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
-                // n|death_date=[[Date of death|4 August 1265]]\n|
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd yyyy"),
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd")
             };
         }
 
-        public static string[] DeathWords = new string[] { "cancer", "ill", "sick", "accident" };
+        public static string[] DeathWords = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
         public string Name { get; private set; }
         public DateTime BirthDate { get; private set; }
         public DateTime? DeathDate { get; private set; }
@@ -79,6 +90,8 @@ namespace DeathClock
         public int DeathWordCount { get; private set; }
 
         public string Title { get; private set; }
+
+        public int WordCount { get; private set; }
 
         public string Url
         {
@@ -118,9 +131,7 @@ namespace DeathClock
                 if (birth != null)
                     break;
             }
-            if (birth == null)
-                return null;
-            person.BirthDate = birth.Value;
+            
 
             DateTime? death = null;
             foreach (var parser in DeathDateParsers)
@@ -129,6 +140,14 @@ namespace DeathClock
                 if (death != null)
                     break;
             }
+
+            if (birth == null)
+            {
+                if (death != null)
+                    LogError("{0} has a death date but no birth date.", person.Title);
+                return null;
+            }
+            person.BirthDate = birth.Value;
             person.DeathDate = death;
 
             foreach (var word in DeathWords)
@@ -137,8 +156,31 @@ namespace DeathClock
                 person.DeathWordCount += wordRegex.Matches(jsonContent).Count;
             }
 
+            person.WordCount = jsonContent.Count(c => c == ' ');
+
             return person;
 
+        }
+
+        private static void LogError(string message, params object[] args)
+        {
+            errors.Push(string.Format(message, args));
+        }
+
+        public static string[] GetErrorLog()
+        {
+            return errors.ToArray();
+        }
+
+        /// <summary>
+        /// Clears the current error log, returning what was cleared.
+        /// </summary>
+        /// <returns></returns>
+        public static string[] ClearErrorLog()
+        {
+            var swap = new ConcurrentStack<string>();
+            var oldErrors = Interlocked.Exchange(ref errors, swap);
+            return oldErrors.ToArray();
         }
 
         private static string GetTitle(string jsonContext)
