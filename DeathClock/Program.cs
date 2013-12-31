@@ -77,13 +77,18 @@ namespace DeathClock
         static void WriteReport(IEnumerable<Person> persons, string title, string path)
         {
             var table = new HtmlTable();
-            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Death Word Count");
+            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Word Count", "Death Word Count");
 
             foreach (var person in persons)
             {
                 string name = string.Format("<a href=\"{0}\">{1}</a>", person.Url, person.Title);
                 string json = string.Format("(<a href=\"{0}\">Json</a>)", person.JsonUrl);
-                table.AddRow(name + " " + json, person.BirthDate.ToShortDateString(), person.DeathDate != null ? person.DeathDate.Value.ToShortDateString() : " - ", person.Age, person.DeathWordCount);
+                table.AddRow(
+                    name + " " + json, person.BirthDate.ToShortDateString(),
+                    person.DeathDate != null ? person.DeathDate.Value.ToShortDateString() : " - ",
+                    person.Age,
+                    person.WordCount,
+                    person.DeathWordCount);
             }
 
             var sb = new StringBuilder();
@@ -91,6 +96,7 @@ namespace DeathClock
             sb.AppendLine("<html>");
             sb.AppendLine("<head>");
             sb.AppendLine("<title>{0}</title>", title);
+            sb.AppendLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("<h1>{0}</h1>", title);
