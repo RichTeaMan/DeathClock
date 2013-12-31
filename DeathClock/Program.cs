@@ -59,6 +59,7 @@ namespace DeathClock
             WriteReports(people.ToList());
 
             File.WriteAllLines("InvalidPeople.txt", invalidPeople);
+            File.WriteAllLines("Erros.txt", Person.ClearErrorLog());
 
             Console.ReadKey();
         }
