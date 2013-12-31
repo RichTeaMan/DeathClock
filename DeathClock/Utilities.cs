@@ -15,10 +15,10 @@ namespace DeathClock
         {
             get
             {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Cache");
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DeathListCache");
             }
         }
-        const string USER_AGENT = "DeathClock";
+        const string USER_AGENT = "DeathList";
 
         public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
         public const string Url = "http://en.wikipedia.org/wiki/{0}";
