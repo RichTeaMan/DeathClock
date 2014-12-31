@@ -109,11 +109,11 @@ namespace DeathClock
             }
         }
 
-        public static Person Create(string title)
+        public async static Task<Person> Create(string title)
         {
             var person = new Person();
 
-            string jsonContent = Utilities.GetPage(title);
+            string jsonContent = await Utilities.GetPage(title);
 
             person.Title = GetTitle(jsonContent);
 
