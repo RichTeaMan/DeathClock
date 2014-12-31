@@ -25,7 +25,7 @@ namespace DeathClock
         static string redirectContains = "#REDIRECT";
         static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
-        public static string GetPage(string title)
+        public async static Task<string> GetPage(string title)
         {
             if (!Directory.Exists(CACHE_FOLDER))
                 Directory.CreateDirectory(CACHE_FOLDER);
@@ -53,8 +53,8 @@ namespace DeathClock
                 WebClient client = new WebClient();
                 client.Headers.Add("User-Agent", USER_AGENT);
                 string url = string.Format(apiUrl, title);
-                contents = client.DownloadString(url);
 
+                contents = await client.DownloadStringTaskAsync(url);
                 // remove comments
                 Regex commentRegex = new Regex("<!--(.*?)-->");
                 var comments = commentRegex.Matches(contents);
@@ -80,7 +80,7 @@ namespace DeathClock
                     // delete required to handle Windows case-insensitve file system
                     if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
                         File.Delete(cacheFileName);
-                    contents = GetPage(redirectTitle);
+                    contents = await GetPage(redirectTitle);
                 }
             }
             return contents;
