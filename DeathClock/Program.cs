@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace DeathClock
 {
@@ -17,25 +18,28 @@ namespace DeathClock
         {
             var peopleTitle = new List<string>();
 
-            peopleTitle.AddRange(GetPeopleTitles("List_of_English_people"));
-            peopleTitle.AddRange(GetPeopleTitles("List_of_Scots"));
-            peopleTitle.AddRange(GetPeopleTitles("List_of_Welsh_people"));
-            peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people"));
-            peopleTitle.AddRange(GetPeopleTitles("Lists_of_Americans"));
+            peopleTitle.AddRange(GetPeopleTitles("List_of_English_people").Result);
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Scots").Result);
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Welsh_people").Result);
+            peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people").Result);
+            peopleTitle.AddRange(GetPeopleTitles("Lists_of_Americans").Result);
 
             var invalidPeople = new ConcurrentBag<string>();
 
             var people = new ConcurrentBag<Person>();
-            Parallel.ForEach(peopleTitle.Distinct(), p =>
+            var titles = peopleTitle.Distinct().ToArray();
+            int totals = titles.Count();
+            int count = 0;
+            Parallel.ForEach(titles, p =>
                 {
                     
                     try
                     {
-                        var person = Person.Create(p);
+                        var person = Person.Create(p).Result;
                         if (person != null)
                         {
                             people.Add(person);
-                            Console.WriteLine("{0} added.", p);
+                            // Console.WriteLine("{0} added.", p);
                         }
                         else
                         {
@@ -45,7 +49,11 @@ namespace DeathClock
                     catch (Exception ex)
                     {
                         Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
+                        invalidPeople.Add(p);
                     }
+                   var _c = Interlocked.Increment(ref count);
+                    if (_c % 100 == 0)
+                        Console.WriteLine("{0} of {1} complete.", _c, totals);
                     
                 });
 
@@ -102,7 +110,10 @@ namespace DeathClock
             sb.AppendLine("<h1>{0}</h1>", title);
             sb.AppendLine("<h3>List generated at {0}.</h3>", DateTime.Now);
             sb.AppendLine("<p>Showing {0} people.</p>", persons.Count());
-            sb.AppendLine("<p>Average age is {0}.", persons.Average(p => p.Age));
+            if (persons.Count() > 0)
+            {
+                sb.AppendLine("<p>Average age is {0}.", persons.Average(p => p.Age));
+            }
             sb.Append(table.GetHtml());
 
             sb.AppendLine("</body>");
@@ -111,20 +122,20 @@ namespace DeathClock
             File.WriteAllText(path, sb.ToString());
         }
 
-        static string[] GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
+        async static Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
         {
             if ((previousLists != null && previousLists.Contains(listTitle)) || level >= 2)
                 return new string[0];
             Console.WriteLine("Getting {0}.", listTitle);
             try
             {
-                string peoplePage = Utilities.GetPage(listTitle);
+                string peoplePage = await Utilities.GetPage(listTitle);
                 if (previousLists == null)
                     previousLists = new List<string>();
                 previousLists.Add(listTitle);
 
                 var peopleTitles = new List<string>();
-                Regex personRegex = new Regex(@"(?<=\*\[\[)[^\[\]\|]+");
+                Regex personRegex = new Regex(@"(?<=\*[^\[]*\[\[)[^\[\]\|]+");
 
                 var matches = personRegex.Matches(peoplePage);
                 foreach (Match match in matches)
@@ -146,11 +157,12 @@ namespace DeathClock
                         listNames.Add(match.Value);
                     }
                     var titles = new ConcurrentBag<string>();
-                    Parallel.ForEach(listNames, name =>
+                    Parallel.ForEach(listNames, async name =>
                     {
                         if (!previousLists.Contains(name))
                         {
-                            foreach (var title in GetPeopleTitles(name, previousLists, level + 1))
+                            var nestedTitles = await GetPeopleTitles(name, previousLists, level + 1);
+                            foreach (var title in nestedTitles)
                             {
                                 titles.Add(title);
                             }
