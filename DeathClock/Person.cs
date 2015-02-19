@@ -85,13 +85,20 @@ namespace DeathClock
         }
         public bool IsDead
         {
-            get { return DeathDate != null || Age >= 110; }
+            get { return DeathDate != null || Age >= 120; }
         }
         public int DeathWordCount { get; private set; }
 
         public string Title { get; private set; }
 
         public int WordCount { get; private set; }
+
+        public string Description { get; private set; }
+
+        public bool IsStub
+        {
+            get { return WordCount < 1000; }
+        }
 
         public string Url
         {
@@ -157,6 +164,13 @@ namespace DeathClock
             }
 
             person.WordCount = jsonContent.Count(c => c == ' ');
+
+            Regex descRegex = new Regex("(?<=SHORT DESCRIPTION[ =]*)[^\n|]+");
+            var descMatch = descRegex.Match(jsonContent);
+            if (descMatch.Success)
+                person.Description = descMatch.Value.Replace("\\n", "").Replace("=","").Trim();
+            else
+                person.Description = "Unknown";
 
             return person;
 
