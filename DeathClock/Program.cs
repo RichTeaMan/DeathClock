@@ -30,71 +30,82 @@ namespace DeathClock
             var titles = peopleTitle.Distinct().ToArray();
             int totals = titles.Count();
             int count = 0;
+            int errors = 0;
+            int invalids = 0;
+
             Parallel.ForEach(titles, p =>
+            {
+                try
                 {
-                    
-                    try
+                    var person = Person.Create(p).Result;
+                    if (person != null)
                     {
-                        var person = Person.Create(p).Result;
-                        if (person != null)
-                        {
-                            people.Add(person);
-                            // Console.WriteLine("{0} added.", p);
-                        }
-                        else
-                        {
-                            invalidPeople.Add(p);
-                        }
+                        people.Add(person);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
                         invalidPeople.Add(p);
+                        Interlocked.Increment(ref invalids);
                     }
-                   var _c = Interlocked.Increment(ref count);
-                    if (_c % 100 == 0)
-                        Console.WriteLine("{0} of {1} complete.", _c, totals);
-                    
-                });
+                }
+                catch (Exception ex)
+                {
+                    // Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
+                    invalidPeople.Add(p);
+                    Interlocked.Increment(ref errors);
+                }
+                int _c = Interlocked.Increment(ref count);
+                if (_c % 100 == 0)
+                {
+                    Console.WriteLine(
+                        "{0} of {1} complete. {2} errors. {3} invalid articles.",
+                        _c,
+                        totals,
+                        errors,
+                        invalids);
+                }
+
+            });
 
             foreach (var person in people)
             {
                 Console.WriteLine(person);
             }
 
-            
             Console.WriteLine("{0} people found.", people.Count);
             WriteReports(people.ToList());
 
             File.WriteAllLines("InvalidPeople.txt", invalidPeople);
-            File.WriteAllLines("Erros.txt", Person.ClearErrorLog());
+            File.WriteAllLines("Errors.txt", Person.ClearErrorLog());
 
             Console.ReadKey();
         }
 
         static void WriteReports(List<Person> persons)
         {
-            WriteReport(persons.Where(p => p.IsDead == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", "TheLiving.html");
+            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living Stubs", "TheLivingStubs.html");
+            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", "TheLiving.html");
             for (int i = 1990; i <= DateTime.Now.Year; i++)
             {
                 string title = string.Format("{0} Deaths", i);
-                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), title, title.Replace(" ", "") + ".html");
+                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, title.Replace(" ", "") + ".html");
             }
         }
 
         static void WriteReport(IEnumerable<Person> persons, string title, string path)
         {
             var table = new HtmlTable();
-            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Word Count", "Death Word Count");
+            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Description", "Word Count", "Death Word Count");
 
             foreach (var person in persons)
             {
-                string name = string.Format("<a href=\"{0}\">{1}</a>", person.Url, person.Title);
-                string json = string.Format("(<a href=\"{0}\">Json</a>)", person.JsonUrl);
+                string name = string.Format("<a href=\"{0}\" target=\"_blank\" >{1}</a>", person.Url, person.Title);
+                string json = string.Format("(<a href=\"{0}\" target=\"_blank\" >Json</a>)", person.JsonUrl);
                 table.AddRow(
                     name + " " + json, person.BirthDate.ToShortDateString(),
                     person.DeathDate != null ? person.DeathDate.Value.ToShortDateString() : " - ",
                     person.Age,
+                    person.Description,
                     person.WordCount,
                     person.DeathWordCount);
             }
