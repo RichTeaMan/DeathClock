@@ -50,11 +50,13 @@ namespace DeathClock
             }
             else
             {
-                WebClient client = new WebClient();
-                client.Headers.Add("User-Agent", USER_AGENT);
-                string url = string.Format(apiUrl, title);
-
-                contents = await client.DownloadStringTaskAsync(url);
+                using (var client = new WebClient())
+                {
+                    client.Headers.Add("User-Agent", USER_AGENT);
+                    string urlStr = string.Format(apiUrl, title);
+                    var url = new Uri(urlStr, UriKind.Absolute);
+                    contents = await client.DownloadStringTaskAsync(url);
+                }
                 // remove comments
                 Regex commentRegex = new Regex("<!--(.*?)-->");
                 var comments = commentRegex.Matches(contents);
@@ -63,7 +65,7 @@ namespace DeathClock
                     contents = contents.Replace(comment.Value, string.Empty);
                 }
 
-                File.WriteAllText(cacheFileName, contents);
+                File.WriteAllText(cacheFileName.ToLowerInvariant(), contents);
             }
 
             // some pages signal a redirect. The redirect should be returned instead
@@ -72,14 +74,11 @@ namespace DeathClock
                 var redirect = redirectRegex.Match(contents);
                 if (redirect.Success)
                 {
-                    string redirectTitle = redirect.Value.Replace(' ', '_');
+                    string redirectTitle = redirect.Value;//.Replace(' ', '_');
 
-                    if (redirectTitle == title)
+                    if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
                         throw new Exception("Endless redirect loop detected.");
 
-                    // delete required to handle Windows case-insensitve file system
-                    if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
-                        File.Delete(cacheFileName);
                     contents = await GetPage(redirectTitle);
                 }
             }
