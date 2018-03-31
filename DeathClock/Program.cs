@@ -24,7 +24,7 @@ namespace DeathClock
             peopleTitle.AddRange(GetPeopleTitles("List_of_Irish_people").Result);
             peopleTitle.AddRange(GetPeopleTitles("Lists_of_Americans").Result);
 
-            var invalidPeople = new ConcurrentBag<string>();
+            var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
             var people = new ConcurrentBag<Person>();
             var titles = peopleTitle.Distinct().ToArray();
@@ -44,14 +44,16 @@ namespace DeathClock
                     }
                     else
                     {
-                        invalidPeople.Add(p);
+                        var invalidPerson = new InvalidPerson() { Name = p, Reason = "Null object. " };
+                        invalidPeople.Add(invalidPerson);
                         Interlocked.Increment(ref invalids);
                     }
                 }
                 catch (Exception ex)
                 {
                     // Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
-                    invalidPeople.Add(p);
+                    var invalidPerson = new InvalidPerson() { Name = p, Reason = ex.Message };
+                    invalidPeople.Add(invalidPerson);
                     Interlocked.Increment(ref errors);
                 }
                 int _c = Interlocked.Increment(ref count);
@@ -75,7 +77,7 @@ namespace DeathClock
             Console.WriteLine("{0} people found.", people.Count);
             WriteReports(people.ToList());
 
-            File.WriteAllLines("InvalidPeople.txt", invalidPeople);
+            File.WriteAllLines("InvalidPeople.txt", invalidPeople.Select(ip => string.Format("{0} - {1}", ip.Name, ip.Reason)).ToArray());
             File.WriteAllLines("Errors.txt", Person.ClearErrorLog());
 
             Console.ReadKey();

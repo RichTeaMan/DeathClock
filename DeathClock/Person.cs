@@ -21,7 +21,7 @@ namespace DeathClock
             errors = new ConcurrentStack<string>();
             BirthDateParsers = new DateParser[]
             { 
-                new DateParser(@"(?i)(?<={{birth[ -_]date and age\|(df=y(es|)\||))\d+\|\d+\|\d+",
+                new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
                 new DateParser(@"(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy"),
@@ -131,22 +131,9 @@ namespace DeathClock
             else
                 person.Name = title.Replace('_', ' ');
 
-            DateTime? birth = null;
-            foreach (var parser in BirthDateParsers)
-            {
-                birth = parser.GetDate(jsonContent);
-                if (birth != null)
-                    break;
-            }
-            
+            DateTime? birth = ExtractDate(jsonContent, BirthDateParsers.ToList());
 
-            DateTime? death = null;
-            foreach (var parser in DeathDateParsers)
-            {
-                death = parser.GetDate(jsonContent);
-                if (death != null)
-                    break;
-            }
+            DateTime? death = ExtractDate(jsonContent, DeathDateParsers.ToList());
 
             if (birth == null)
             {
@@ -168,12 +155,25 @@ namespace DeathClock
             Regex descRegex = new Regex("(?<=SHORT DESCRIPTION[ =]*)[^\n|]+");
             var descMatch = descRegex.Match(jsonContent);
             if (descMatch.Success)
-                person.Description = descMatch.Value.Replace("\\n", "").Replace("=","").Trim();
+                person.Description = descMatch.Value.Replace("\\n", "").Replace("=", "").Trim();
             else
                 person.Description = "Unknown";
 
             return person;
 
+        }
+
+        private static DateTime? ExtractDate(string content, IEnumerable<DateParser> dateParsers)
+        {
+            DateTime? extractedDate = null;
+            foreach (var parser in dateParsers)
+            {
+                extractedDate = parser.GetDate(content);
+                if (extractedDate != null)
+                    break;
+            }
+
+            return extractedDate;
         }
 
         private static void LogError(string message, params object[] args)
