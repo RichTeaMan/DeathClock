@@ -3,6 +3,7 @@
 
 .vs/
 */Results/
+tools/
 
 # User-specific files
 *.suo
