@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathClock", "DeathClock\DeathClock.csproj", "{41B00067-2B14-4A14-9845-9D80DA42CCE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeathClock", "DeathClock\DeathClock.csproj", "{41B00067-2B14-4A14-9845-9D80DA42CCE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathClock.Test", "DeathClock.Test\DeathClock.Test.csproj", "{722D64EF-B71F-43AE-A2EF-875BC085F232}"
 EndProject
