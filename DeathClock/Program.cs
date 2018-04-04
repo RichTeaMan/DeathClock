@@ -13,7 +13,7 @@ namespace DeathClock
 {
     class Program
     {
-        
+
         static void Main(string[] args)
         {
             var peopleTitle = new List<string>();
@@ -186,7 +186,7 @@ namespace DeathClock
 
                 return peopleTitles.ToArray();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return new string[0];

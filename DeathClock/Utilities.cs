@@ -29,11 +29,6 @@ namespace DeathClock
 
         public async static Task<string> GetPage(string title)
         {
-            if (title.Contains("Guitar"))
-            {
-                Console.WriteLine("!!");
-            }
-
             title = CleanTitle(title);
             string urlStr = string.Format(apiUrl, title);
             var document = webCache.GetWebPage(urlStr);
