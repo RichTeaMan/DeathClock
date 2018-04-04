@@ -132,7 +132,7 @@ namespace DeathClock
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
 
-            File.WriteAllText(path, sb.ToString());
+            File.WriteAllText(Path.Combine("Results", path), sb.ToString());
         }
 
         async static Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
@@ -186,8 +186,9 @@ namespace DeathClock
 
                 return peopleTitles.ToArray();
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex);
                 return new string[0];
             }
 

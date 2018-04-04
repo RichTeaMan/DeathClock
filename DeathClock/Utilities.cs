@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RichTea.WebCache;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,11 +13,11 @@ namespace DeathClock
     public static class Utilities
     {
 
-        static string CACHE_FOLDER;
+        private static WebCache webCache;
 
         static Utilities()
         {
-            CACHE_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DeathListCache");
+            webCache = new WebCache("DeathListCacheCore");
         }
 
         const string USER_AGENT = "DeathList";
@@ -32,13 +33,16 @@ namespace DeathClock
             {
                 Console.WriteLine("!!");
             }
-            if (!Directory.Exists(CACHE_FOLDER))
-                Directory.CreateDirectory(CACHE_FOLDER);
+
             title = CleanTitle(title);
+            string urlStr = string.Format(apiUrl, title);
+            var document = webCache.GetWebPage(urlStr);
 
-            string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
+            //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
 
-            string contents;
+            string contents = document.GetContents();
+
+            /*
             if (File.Exists(cacheFileName))
             {
                 contents = File.ReadAllText(cacheFileName);
@@ -62,6 +66,7 @@ namespace DeathClock
 
                 File.WriteAllText(cacheFileName.ToLowerInvariant(), contents);
             }
+            */
 
             // some pages signal a redirect. The redirect should be returned instead
             if (contents.Contains(redirectContains))
