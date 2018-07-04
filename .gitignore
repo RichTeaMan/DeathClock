@@ -3,6 +3,7 @@
 
 Results/
 
+.dotnet/
 .vs/
 */Results/
 tools/
