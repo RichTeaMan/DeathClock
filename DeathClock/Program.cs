@@ -73,6 +73,7 @@ namespace DeathClock
             {
                 Console.WriteLine(person);
             }
+            Directory.CreateDirectory("Results");
 
             Console.WriteLine("{0} people found.", people.Count);
             WriteReports(people.ToList());
@@ -80,7 +81,6 @@ namespace DeathClock
             File.WriteAllLines("InvalidPeople.txt", invalidPeople.Select(ip => string.Format("{0} - {1}", ip.Name, ip.Reason)).ToArray());
             File.WriteAllLines("Errors.txt", Person.ClearErrorLog());
 
-            Console.ReadKey();
         }
 
         static void WriteReports(List<Person> persons)
