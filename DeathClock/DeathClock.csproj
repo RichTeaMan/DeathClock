@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WebCache\RichTea.WebCache\RichTea.WebCache.csproj" />
+    <PackageReference Include="RichTea.WebCache" Version="0.1.0-beta" />
   </ItemGroup>
 
 </Project>
