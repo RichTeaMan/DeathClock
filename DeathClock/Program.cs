@@ -33,7 +33,7 @@ namespace DeathClock
             int errors = 0;
             int invalids = 0;
 
-            Parallel.ForEach(titles, p =>
+            Parallel.ForEach(titles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, p =>
             {
                 try
                 {
