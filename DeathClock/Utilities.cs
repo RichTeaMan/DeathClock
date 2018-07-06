@@ -1,9 +1,6 @@
 ﻿using RichTea.WebCache;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,20 +10,20 @@ namespace DeathClock
     public static class Utilities
     {
 
-        public const WebCache WebCache = new WebCache("DeathListCacheCore");
+        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore");
 
         const string USER_AGENT = "DeathList";
 
         public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
         public const string Url = "http://en.wikipedia.org/wiki/{0}";
-        static readonly string redirectContains = "#REDIRECT";
-        static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
+        private readonly static string redirectContains = "#REDIRECT";
+        private static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
         public async static Task<string> GetPage(string title)
         {
             title = CleanTitle(title);
             string urlStr = string.Format(apiUrl, title);
-            var document = await webCache.GetWebPageAsync(urlStr);
+            var document = await WebCache.GetWebPageAsync(urlStr);
 
             //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
 
