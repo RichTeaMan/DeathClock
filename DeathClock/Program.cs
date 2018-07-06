@@ -59,12 +59,8 @@ namespace DeathClock
                 int _c = Interlocked.Increment(ref count);
                 if (_c % 100 == 0)
                 {
-                    Console.WriteLine(
-                        "{0} of {1} complete. {2} errors. {3} invalid articles.",
-                        _c,
-                        totals,
-                        errors,
-                        invalids);
+                    var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
+                    Console.Write(message.PadRight(Console.BufferWidth));
                 }
 
             });
