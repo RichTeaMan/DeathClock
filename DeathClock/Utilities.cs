@@ -10,7 +10,7 @@ namespace DeathClock
     public static class Utilities
     {
 
-        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore");
+        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 2 };
 
         const string USER_AGENT = "DeathList";
 
