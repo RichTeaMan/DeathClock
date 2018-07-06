@@ -60,7 +60,7 @@ namespace DeathClock
                 if (_c % 100 == 0)
                 {
                     var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
-                    Console.Write(message.PadRight(Console.BufferWidth));
+                    Console.WriteLine(message.PadRight(Console.BufferWidth));
                 }
 
             });
