@@ -16,7 +16,7 @@ namespace DeathClock
         static void Main(string[] args)
         {
             string resultDirectory;
-            if (args.Length >= 1)
+            if (args.Length >= 1 && !string.IsNullOrWhiteSpace(args[0]))
             {
                 resultDirectory = args[0];
             } else
@@ -69,7 +69,7 @@ namespace DeathClock
                 if (_c % 100 == 0)
                 {
                     var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
-                    Console.WriteLine(message.PadRight(Console.BufferWidth));
+                    Console.WriteLine(message);
                 }
 
             });

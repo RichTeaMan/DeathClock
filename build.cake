@@ -8,6 +8,8 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
+var outputPath = Argument("outputPath", string.Empty);
+
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
 //////////////////////////////////////////////////////////////////////
@@ -52,7 +54,9 @@ Task("Run")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll");
+    var command = $"{outputPath}";
+
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
 });
 
 //////////////////////////////////////////////////////////////////////
