@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +15,16 @@ namespace DeathClock
 
         static void Main(string[] args)
         {
+            string resultDirectory;
+            if (args.Length >= 1)
+            {
+                resultDirectory = args[0];
+            } else
+            {
+                resultDirectory = "Results";
+            }
+            Directory.CreateDirectory(resultDirectory);
+
             var peopleTitle = new List<string>();
 
             peopleTitle.AddRange(GetPeopleTitles("List_of_English_people").Result);
@@ -69,24 +78,23 @@ namespace DeathClock
             {
                 Console.WriteLine(person);
             }
-            Directory.CreateDirectory("Results");
 
             Console.WriteLine("{0} people found.", people.Count);
-            WriteReports(people.ToList());
+            WriteReports(people.ToList(), resultDirectory);
 
-            File.WriteAllLines(Path.Combine("Results", "InvalidPeople.txt"), invalidPeople.Select(ip => string.Format("{0} - {1}", ip.Name, ip.Reason)).ToArray());
-            File.WriteAllLines(Path.Combine("Results", "Errors.txt"), Person.ClearErrorLog());
+            File.WriteAllLines(Path.Combine(resultDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => string.Format("{0} - {1}", ip.Name, ip.Reason)).ToArray());
+            File.WriteAllLines(Path.Combine(resultDirectory, "Errors.txt"), Person.ClearErrorLog());
 
         }
 
-        static void WriteReports(List<Person> persons)
+        static void WriteReports(List<Person> persons, string resultDirectory)
         {
             WriteReport(persons.Where(p => p.IsDead == false && p.IsStub).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living Stubs", "TheLivingStubs.html");
             WriteReport(persons.Where(p => p.IsDead == false && p.IsStub == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", "TheLiving.html");
             for (int i = 1990; i <= DateTime.Now.Year; i++)
             {
                 string title = string.Format("{0} Deaths", i);
-                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, title.Replace(" ", "") + ".html");
+                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, Path.Combine(resultDirectory, title.Replace(" ", "") + ".html"));
             }
         }
 
@@ -128,7 +136,7 @@ namespace DeathClock
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
 
-            File.WriteAllText(Path.Combine("Results", path), sb.ToString());
+            File.WriteAllText(path, sb.ToString());
         }
 
         async static Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
