@@ -20,20 +20,23 @@ namespace DeathClock
 
         static async Task Main(string[] args)
         {
-            using (Container = BuildDiContainer())
+
+            Console.WriteLine("Beginning the Deathclock.");
+
+            string resultDirectory;
+            if (args.Length >= 1 && !string.IsNullOrWhiteSpace(args[0]))
+            {
+                resultDirectory = args[0];
+            }
+            else
+            {
+                resultDirectory = "Results";
+            }
+
+            using (Container = BuildDiContainer(resultDirectory))
             {
 
-                Console.WriteLine("Beginning the Deathclock.");
-
-                string resultDirectory;
-                if (args.Length >= 1 && !string.IsNullOrWhiteSpace(args[0]))
-                {
-                    resultDirectory = args[0];
-                }
-                else
-                {
-                    resultDirectory = "Results";
-                }
+                Directory.CreateDirectory(resultDirectory);
 
                 Console.WriteLine($"Results will be written to '{resultDirectory}'.");
 
@@ -49,10 +52,13 @@ namespace DeathClock
         /// <summary>
         /// Builds the dependency injection container.
         /// </summary>
-        private static IContainer BuildDiContainer()
+        private static IContainer BuildDiContainer(string resultDirectory)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
+            serviceCollection.AddLogging(l =>
+            {
+                l.AddConsole().AddDebug().AddFile(Path.Combine(resultDirectory, "log.txt"), LogLevel.Trace);
+            });
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);

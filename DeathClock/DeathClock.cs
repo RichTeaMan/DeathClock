@@ -30,6 +30,8 @@ namespace DeathClock
 
         public async Task Start()
         {
+            logger.LogTrace("Deathclock started.");
+
             Directory.CreateDirectory(ResultDirectory);
 
 
