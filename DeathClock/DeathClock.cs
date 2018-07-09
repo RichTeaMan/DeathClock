@@ -24,22 +24,21 @@ namespace DeathClock
         {
             Directory.CreateDirectory(ResultDirectory);
 
-            var peopleTitle = new List<string>();
 
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_English_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Scots"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Welsh_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Irish_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("Lists_of_Americans"));
+            Console.WriteLine("Finding articles...");
+            var titles = await FindArticleTitles();
+
+            File.WriteAllLines(Path.Combine(ResultDirectory, "ExaminedArticles.txt"), titles.ToArray());
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
             var people = new ConcurrentBag<Person>();
-            var titles = peopleTitle.Distinct().ToArray();
             int totals = titles.Count();
             int count = 0;
             int errors = 0;
             int invalids = 0;
+
+            Console.WriteLine($"Scanning {titles.Count()} articles.");
 
             Parallel.ForEach(titles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, p =>
             {
@@ -59,7 +58,6 @@ namespace DeathClock
                 }
                 catch (Exception ex)
                 {
-                    // Console.WriteLine("Error creating person '{0} - {1}'.", p, ex.Message);
                     var invalidPerson = new InvalidPerson() { Name = p, Reason = ex.Message };
                     invalidPeople.Add(invalidPerson);
                     Interlocked.Increment(ref errors);
@@ -84,6 +82,22 @@ namespace DeathClock
             File.WriteAllLines(Path.Combine(ResultDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(ResultDirectory, "Errors.txt"), Person.ClearErrorLog());
 
+        }
+
+        /// <summary>
+        /// Creates a list of aritcle titles likely (but not guarantedd to belong to people.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> FindArticleTitles()
+        {
+            var peopleTitle = new List<string>();
+            peopleTitle.AddRange(await GetPeopleTitles("List_of_English_people"));
+            peopleTitle.AddRange(await GetPeopleTitles("List_of_Scots"));
+            peopleTitle.AddRange(await GetPeopleTitles("List_of_Welsh_people"));
+            peopleTitle.AddRange(await GetPeopleTitles("List_of_Irish_people"));
+            peopleTitle.AddRange(await GetPeopleTitles("Lists_of_Americans"));
+
+            return peopleTitle.Distinct().OrderBy(p => p).ToList();
         }
 
         private void WriteReports(List<Person> persons)
@@ -141,8 +155,9 @@ namespace DeathClock
         private async Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
         {
             if ((previousLists != null && previousLists.Contains(listTitle)) || level >= 2)
+            {
                 return new string[0];
-            Console.WriteLine($"Getting {listTitle}.");
+            }
             try
             {
                 string peoplePage = await Utilities.GetPage(listTitle);

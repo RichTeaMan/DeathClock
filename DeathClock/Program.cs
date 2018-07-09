@@ -15,6 +15,8 @@ namespace DeathClock
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("Beginning the Deathclock.");
+
             string resultDirectory;
             if (args.Length >= 1 && !string.IsNullOrWhiteSpace(args[0]))
             {
@@ -26,6 +28,8 @@ namespace DeathClock
 
             var deathClock = new DeathClock() { ResultDirectory = resultDirectory };
             await deathClock.Start();
+
+            Console.WriteLine("The Deathclock has finised.");
         }
     }
 }
