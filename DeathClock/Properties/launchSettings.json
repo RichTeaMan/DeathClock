@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DeathClock": {
+      "commandName": "Project",
+      "commandLineArgs": "outres"
+    }
+  }
+}
