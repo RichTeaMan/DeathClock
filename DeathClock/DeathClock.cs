@@ -85,19 +85,28 @@ namespace DeathClock
         }
 
         /// <summary>
-        /// Creates a list of aritcle titles likely (but not guarantedd to belong to people.
+        /// Creates a list of article titles likely (but not guaranteed) to be people.
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<string>> FindArticleTitles()
         {
-            var peopleTitle = new List<string>();
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_English_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Scots"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Welsh_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("List_of_Irish_people"));
-            peopleTitle.AddRange(await GetPeopleTitles("Lists_of_Americans"));
+            var results = new List<string>();
+            var listTitles = new[] {
+                "List_of_English_people",
+                "List_of_Scots",
+                "List_of_Welsh_people",
+                "List_of_Irish_people",
+                "Lists_of_Americans"
+            };
 
-            return peopleTitle.Distinct().OrderBy(p => p).ToList();
+            foreach (var listTitle in listTitles)
+            {
+                var peopleTitles = await GetPeopleTitles(listTitle);
+                Console.WriteLine($"{peopleTitles.Count()} articles found from '{listTitle}'.");
+                results.AddRange(peopleTitles);
+            }
+
+            return results.Distinct().OrderBy(p => p).ToList();
         }
 
         private void WriteReports(List<Person> persons)
