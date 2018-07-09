@@ -168,6 +168,7 @@ namespace DeathClock
 
         private async Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
         {
+            logger.LogTrace($"GetPeopleTitles started. List title: {listTitle} Level: {level}");
             if ((previousLists != null && previousLists.Contains(listTitle)) || level >= 2)
             {
                 return new string[0];
@@ -187,7 +188,9 @@ namespace DeathClock
                 {
                     if (!match.Value.Contains("Category") && !match.Value.Contains("List") && !match.Value.Contains(" people") && !match.Value.Contains(':'))
                     {
-                        peopleTitles.Add(match.Value.Replace(' ', '_'));
+                        var title = match.Value.Replace(' ', '_');
+                        logger.LogTrace($"Person matched: {title}");
+                        peopleTitles.Add(title);
                     }
                 }
 
@@ -209,6 +212,7 @@ namespace DeathClock
                             var nestedTitles = await GetPeopleTitles(name, previousLists, level + 1);
                             foreach (var title in nestedTitles)
                             {
+                                logger.LogTrace($"List matched: {title}");
                                 titles.Add(title);
                             }
                         }
@@ -221,7 +225,12 @@ namespace DeathClock
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                logger.LogError(ex, "Error in GetPeopleTitles.");
                 return new string[0];
+            }
+            finally
+            {
+                logger.LogTrace($"GetPeopleTitles ended. List title: {listTitle} Level: {level}");
             }
 
         }
