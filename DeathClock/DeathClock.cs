@@ -71,11 +71,6 @@ namespace DeathClock
 
             });
 
-            foreach (var person in people)
-            {
-                Console.WriteLine(person);
-            }
-
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
 
