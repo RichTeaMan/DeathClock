@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace DeathClock
 {
@@ -15,10 +16,17 @@ namespace DeathClock
     /// </summary>
     public class DeathClock
     {
+        private readonly ILogger<DeathClock> logger;
+
         /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string ResultDirectory { get; set; } = "Results";
+
+        public DeathClock(ILogger<DeathClock> logger)
+        {
+            this.logger = logger;
+        }
 
         public async Task Start()
         {
