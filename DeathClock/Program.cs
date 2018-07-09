@@ -26,6 +26,8 @@ namespace DeathClock
                 resultDirectory = "Results";
             }
 
+            Console.WriteLine($"Results will be written to '{resultDirectory}'.");
+
             var deathClock = new DeathClock() { ResultDirectory = resultDirectory };
             await deathClock.Start();
 
