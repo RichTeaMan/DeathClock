@@ -3,7 +3,7 @@
 This is a grim project that attempts to predict upcoming deaths of people from their Wikipedia articles.
 
 ## Cake Tasks
-This project uses [Cake](https://cakebuild.net)!
+This project uses [Cake](https://cakebuild.net).
 * cake -target=Clean
 * cake -target=Build
 * cake -target=Test
