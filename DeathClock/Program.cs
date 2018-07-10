@@ -63,6 +63,7 @@ namespace DeathClock
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
             containerBuilder.RegisterType<DeathClock>().As<DeathClock>();
+            containerBuilder.RegisterType<PersonFactory>().As<PersonFactory>();
             return containerBuilder.Build();
         }
     }

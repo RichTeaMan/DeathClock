@@ -16,16 +16,25 @@ namespace DeathClock
     /// </summary>
     public class DeathClock
     {
+        /// <summary>
+        /// Logger.
+        /// </summary>
         private readonly ILogger<DeathClock> logger;
+
+        /// <summary>
+        /// Person factory.
+        /// </summary>
+        private readonly PersonFactory personFactory;
 
         /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string ResultDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger)
+        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory)
         {
             this.logger = logger;
+            this.personFactory = personFactory;
         }
 
         public async Task Start()
@@ -50,11 +59,11 @@ namespace DeathClock
 
             Console.WriteLine($"Scanning {titles.Count()} articles.");
 
-            Parallel.ForEach(titles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, p =>
+            Parallel.ForEach(titles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async p =>
             {
                 try
                 {
-                    var person = Person.Create(p).Result;
+                    var person = await personFactory.Create(p);
                     if (person != null)
                     {
                         people.Add(person);
@@ -85,7 +94,7 @@ namespace DeathClock
             WriteReports(people.ToList());
 
             File.WriteAllLines(Path.Combine(ResultDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
-            File.WriteAllLines(Path.Combine(ResultDirectory, "Errors.txt"), Person.ClearErrorLog());
+            File.WriteAllLines(Path.Combine(ResultDirectory, "Errors.txt"), personFactory.ClearErrorLog());
 
         }
 
