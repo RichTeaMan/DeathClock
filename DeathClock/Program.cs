@@ -19,7 +19,7 @@ namespace DeathClock
     {
         private static IContainer Container { get; set; }
 
-        static void Main(string[] args)
+        static void xMain(string[] args)
         {
             MethodInvoker command = null;
             try
@@ -30,7 +30,6 @@ namespace DeathClock
             {
                 Console.WriteLine("Error parsing command:");
                 Console.WriteLine(ex);
-                Console.ReadKey();
             }
             if (command != null)
             {
@@ -54,6 +53,11 @@ namespace DeathClock
                     Console.WriteLine(ex.StackTrace);
                 }
             }
+        }
+
+        static async Task Main(string[] args)
+        {
+            await RunDeathDeathclock(new[] { "List_of_Scots" }, "testrun");
         }
 
         [DefaultClCommand]

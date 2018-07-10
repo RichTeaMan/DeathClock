@@ -63,6 +63,10 @@ namespace DeathClock
             {
                 try
                 {
+                    if (p.Contains("Mone"))
+                    {
+                        Console.WriteLine("Mone");
+                    }
                     var person = await personFactory.Create(p);
                     if (person != null)
                     {

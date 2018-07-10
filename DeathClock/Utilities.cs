@@ -10,7 +10,7 @@ namespace DeathClock
     public static class Utilities
     {
 
-        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 2 };
+        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 20 };
 
         const string USER_AGENT = "DeathList";
 
@@ -23,53 +23,80 @@ namespace DeathClock
         {
             title = CleanTitle(title);
             string urlStr = string.Format(apiUrl, title);
-            var document = await WebCache.GetWebPageAsync(urlStr);
-
-            //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
-
-            string contents = document.GetContents();
-
-            /*
-            if (File.Exists(cacheFileName))
+            try
             {
-                contents = File.ReadAllText(cacheFileName);
-            }
-            else
-            {
-                using (var client = new WebClient())
+
+                if (title.Contains("Michelle_Mone"))
                 {
-                    client.Headers.Add("User-Agent", USER_AGENT);
-                    string urlStr = string.Format(apiUrl, title);
-                    var url = new Uri(urlStr, UriKind.Absolute);
-                    contents = await client.DownloadStringTaskAsync(url);
-                }
-                // remove comments
-                Regex commentRegex = new Regex("<!--(.*?)-->");
-                var comments = commentRegex.Matches(contents);
-                foreach (Match comment in comments)
-                {
-                    contents = contents.Replace(comment.Value, string.Empty);
+                    Console.WriteLine("???");
+                    var deb = await WebCache.GetWebPageAsync(urlStr);
+                    Console.WriteLine(deb);
                 }
 
-                File.WriteAllText(cacheFileName.ToLowerInvariant(), contents);
-            }
-            */
+                var document = await WebCache.GetWebPageAsync(urlStr);
 
-            // some pages signal a redirect. The redirect should be returned instead
-            if (contents.Contains(redirectContains))
-            {
-                var redirect = redirectRegex.Match(contents);
-                if (redirect.Success)
+                
+
+                //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
+
+                string contents = document.GetContents();
+
+                /*
+                if (File.Exists(cacheFileName))
                 {
-                    string redirectTitle = CleanTitle(redirect.Value);
-
-                    if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
-                        throw new Exception("Endless redirect loop detected.");
-
-                    contents = await GetPage(redirectTitle);
+                    contents = File.ReadAllText(cacheFileName);
                 }
+                else
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.Headers.Add("User-Agent", USER_AGENT);
+                        string urlStr = string.Format(apiUrl, title);
+                        var url = new Uri(urlStr, UriKind.Absolute);
+                        contents = await client.DownloadStringTaskAsync(url);
+                    }
+                    // remove comments
+                    Regex commentRegex = new Regex("<!--(.*?)-->");
+                    var comments = commentRegex.Matches(contents);
+                    foreach (Match comment in comments)
+                    {
+                        contents = contents.Replace(comment.Value, string.Empty);
+                    }
+
+                    File.WriteAllText(cacheFileName.ToLowerInvariant(), contents);
+                }
+                */
+
+                // some pages signal a redirect. The redirect should be returned instead
+                if (contents.Contains(redirectContains))
+                {
+                    var redirect = redirectRegex.Match(contents);
+                    if (redirect.Success)
+                    {
+                        string redirectTitle = CleanTitle(redirect.Value);
+
+                        if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
+                            throw new Exception("Endless redirect loop detected.");
+
+                        contents = await GetPage(redirectTitle);
+                    }
+                }
+                if (title.Contains("Michelle_Mone"))
+                {
+                    Console.WriteLine("monemone");
+                }
+                return contents;
             }
-            return contents;
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                if (title.Contains("Michelle_Mone"))
+                {
+                    Console.WriteLine("monemone");
+                }
+                throw ex;
+            }
         }
 
         private static string CleanTitle(string title)
