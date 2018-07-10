@@ -8,7 +8,7 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
-var outputPath = Argument("outputPath", string.Empty);
+var outputDirectory = Argument("outputDirectory", string.Empty);
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -54,7 +54,10 @@ Task("Run")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var command = $"{outputPath}";
+    var command = string.Empty;
+    if (!string.IsNullOrEmpty(outputDirectory)) {
+        command += $"-outputDirectory {outputDirectory}";
+    }
 
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
 });

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using RichTea.CommandLineParser;
 
 namespace DeathClock
 {
@@ -18,35 +19,61 @@ namespace DeathClock
     {
         private static IContainer Container { get; set; }
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
+            MethodInvoker command = null;
+            try
+            {
+                command = new CommandLineParserInvoker().GetCommand(typeof(Program), args);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error parsing command:");
+                Console.WriteLine(ex);
+                Console.ReadKey();
+            }
+            if (command != null)
+            {
+                try
+                {
+                    command.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error running command:");
+                    Console.WriteLine(ex);
 
+                    var inner = ex.InnerException;
+                    while (inner != null)
+                    {
+                        Console.WriteLine(inner);
+                        Console.WriteLine();
+                        inner = inner.InnerException;
+                    }
+
+                    Console.WriteLine(ex.StackTrace);
+                }
+            }
+        }
+
+        [DefaultClCommand]
+        public static async Task RunDeathDeathclock([ClArgs("outputDirectory", "od")]string outputDirectory = "Results")
+        {
             Console.WriteLine("Beginning the Deathclock.");
 
-            string resultDirectory;
-            if (args.Length >= 1 && !string.IsNullOrWhiteSpace(args[0]))
-            {
-                resultDirectory = args[0];
-            }
-            else
-            {
-                resultDirectory = "Results";
-            }
-
-            using (Container = BuildDiContainer(resultDirectory))
+            using (Container = BuildDiContainer(outputDirectory))
             {
 
-                Directory.CreateDirectory(resultDirectory);
+                Directory.CreateDirectory(outputDirectory);
 
-                Console.WriteLine($"Results will be written to '{resultDirectory}'.");
+                Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
                 var deathClock = Container.Resolve<DeathClock>();
-                deathClock.ResultDirectory = resultDirectory;
+                deathClock.OutputDirectory = outputDirectory;
                 await deathClock.Start();
 
                 Console.WriteLine("The Deathclock has finished.");
             }
-
         }
 
         /// <summary>

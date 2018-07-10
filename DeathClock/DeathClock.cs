@@ -29,7 +29,7 @@ namespace DeathClock
         /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
-        public string ResultDirectory { get; set; } = "Results";
+        public string OutputDirectory { get; set; } = "Results";
 
         public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory)
         {
@@ -41,13 +41,13 @@ namespace DeathClock
         {
             logger.LogTrace("Deathclock started.");
 
-            Directory.CreateDirectory(ResultDirectory);
+            Directory.CreateDirectory(OutputDirectory);
 
 
             Console.WriteLine("Finding articles...");
             var titles = await FindArticleTitles();
 
-            File.WriteAllLines(Path.Combine(ResultDirectory, "ExaminedArticles.txt"), titles.ToArray());
+            File.WriteAllLines(Path.Combine(OutputDirectory, "ExaminedArticles.txt"), titles.ToArray());
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
@@ -93,8 +93,8 @@ namespace DeathClock
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
 
-            File.WriteAllLines(Path.Combine(ResultDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
-            File.WriteAllLines(Path.Combine(ResultDirectory, "Errors.txt"), personFactory.ClearErrorLog());
+            File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
+            File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());
 
         }
 
@@ -130,7 +130,7 @@ namespace DeathClock
             for (int i = 1990; i <= DateTime.Now.Year; i++)
             {
                 string title = $"{i} Deaths";
-                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, Path.Combine(ResultDirectory, title.Replace(" ", "") + ".html"));
+                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, Path.Combine(OutputDirectory, title.Replace(" ", "") + ".html"));
             }
         }
 
