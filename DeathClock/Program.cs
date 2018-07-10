@@ -57,20 +57,21 @@ namespace DeathClock
         }
 
         [DefaultClCommand]
-        public static async Task RunDeathDeathclock([ClArgs("outputDirectory", "od")]string outputDirectory = "Results")
+        public static async Task RunDeathDeathclock(
+            [ClArgs("list")]string[] listArticles,
+            [ClArgs("outputDirectory", "od")]string outputDirectory = "Results")
         {
             Console.WriteLine("Beginning the Deathclock.");
 
             using (Container = BuildDiContainer(outputDirectory))
             {
-
                 Directory.CreateDirectory(outputDirectory);
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
                 var deathClock = Container.Resolve<DeathClock>();
                 deathClock.OutputDirectory = outputDirectory;
-                await deathClock.Start();
+                await deathClock.Start(listArticles);
 
                 Console.WriteLine("The Deathclock has finished.");
             }

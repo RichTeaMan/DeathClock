@@ -37,7 +37,7 @@ namespace DeathClock
             this.personFactory = personFactory;
         }
 
-        public async Task Start()
+        public async Task Start(string[] listArticles)
         {
             logger.LogTrace("Deathclock started.");
 
@@ -45,7 +45,7 @@ namespace DeathClock
 
 
             Console.WriteLine("Finding articles...");
-            var titles = await FindArticleTitles();
+            var titles = await FindArticleTitles(listArticles);
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "ExaminedArticles.txt"), titles.ToArray());
 
@@ -102,18 +102,11 @@ namespace DeathClock
         /// Creates a list of article titles likely (but not guaranteed) to be people.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<string>> FindArticleTitles()
+        public async Task<IEnumerable<string>> FindArticleTitles(string[] listArticles)
         {
             var results = new List<string>();
-            var listTitles = new[] {
-                "List_of_English_people",
-                "List_of_Scots",
-                "List_of_Welsh_people",
-                "List_of_Irish_people",
-                "Lists_of_Americans"
-            };
 
-            foreach (var listTitle in listTitles)
+            foreach (var listTitle in listArticles)
             {
                 var peopleTitles = await GetPeopleTitles(listTitle);
                 Console.WriteLine($"{peopleTitles.Count()} articles found from '{listTitle}'.");

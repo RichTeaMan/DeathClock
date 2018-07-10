@@ -50,6 +50,20 @@ Task("Test")
     DotNetCoreTest("DeathClock.Test/DeathClock.Test.csproj");
 });
 
+Task("TestRun")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    var command = string.Empty;
+    if (!string.IsNullOrEmpty(outputDirectory)) {
+        command += $"-outputDirectory {outputDirectory}";
+    }
+
+    command += " -list List_of_Scots";
+
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
+});
+
 Task("Run")
     .IsDependentOn("Build")
     .Does(() =>
@@ -58,6 +72,8 @@ Task("Run")
     if (!string.IsNullOrEmpty(outputDirectory)) {
         command += $"-outputDirectory {outputDirectory}";
     }
+
+    command += " -list List_of_English_people -list List_of_Scots -list List_of_Welsh_people -list List_of_Irish_people -list Lists_of_Americans";
 
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
 });
