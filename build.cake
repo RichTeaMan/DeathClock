@@ -73,7 +73,7 @@ Task("Run")
         command += $"-outputDirectory {outputDirectory}";
     }
 
-    command += " -list List_of_English_people -list List_of_Scots -list List_of_Welsh_people -list List_of_Irish_people -list Lists_of_Americans";
+    command += " -list List_of_English_people List_of_Scots List_of_Welsh_people List_of_Irish_people Lists_of_Americans";
 
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
 });

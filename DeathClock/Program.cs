@@ -19,7 +19,7 @@ namespace DeathClock
     {
         private static IContainer Container { get; set; }
 
-        static void xMain(string[] args)
+        static void Main(string[] args)
         {
             MethodInvoker command = null;
             try
@@ -55,7 +55,7 @@ namespace DeathClock
             }
         }
 
-        static async Task Main(string[] args)
+        static async Task xMain(string[] args)
         {
             await RunDeathDeathclock(new[] { "List_of_Scots" }, "testrun");
         }

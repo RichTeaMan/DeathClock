@@ -59,7 +59,7 @@ namespace DeathClock
 
             Console.WriteLine($"Scanning {titles.Count()} articles.");
 
-            Parallel.ForEach(titles, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async p =>
+            foreach(var p in titles)
             {
                 try
                 {
@@ -92,7 +92,7 @@ namespace DeathClock
                     Console.WriteLine(message);
                 }
 
-            });
+            }
 
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
