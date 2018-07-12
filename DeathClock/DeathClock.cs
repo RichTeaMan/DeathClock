@@ -122,8 +122,8 @@ namespace DeathClock
 
         private void WriteReports(List<Person> persons)
         {
-            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living Stubs", "TheLivingStubs.html");
-            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", "TheLiving.html");
+            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living Stubs", Path.Combine(OutputDirectory, "TheLivingStubs.html"));
+            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", Path.Combine(OutputDirectory, "TheLiving.html"));
             for (int i = 1990; i <= DateTime.Now.Year; i++)
             {
                 string title = $"{i} Deaths";
