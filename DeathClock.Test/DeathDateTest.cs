@@ -38,5 +38,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate3()
+        {
+            string content = File.ReadAllText("WikiJson/JamesEKelly.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1933, 05, 25);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
