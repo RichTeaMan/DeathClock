@@ -12,8 +12,6 @@ namespace DeathClock
 
         public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 20 };
 
-        const string USER_AGENT = "DeathList";
-
         public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
         public const string Url = "http://en.wikipedia.org/wiki/{0}";
         private readonly static string redirectContains = "#REDIRECT";
@@ -26,36 +24,7 @@ namespace DeathClock
             try
             {
                 var document = await WebCache.GetWebPageAsync(urlStr);
-
-                //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
-
                 string contents = document.GetContents();
-
-                /*
-                if (File.Exists(cacheFileName))
-                {
-                    contents = File.ReadAllText(cacheFileName);
-                }
-                else
-                {
-                    using (var client = new WebClient())
-                    {
-                        client.Headers.Add("User-Agent", USER_AGENT);
-                        string urlStr = string.Format(apiUrl, title);
-                        var url = new Uri(urlStr, UriKind.Absolute);
-                        contents = await client.DownloadStringTaskAsync(url);
-                    }
-                    // remove comments
-                    Regex commentRegex = new Regex("<!--(.*?)-->");
-                    var comments = commentRegex.Matches(contents);
-                    foreach (Match comment in comments)
-                    {
-                        contents = contents.Replace(comment.Value, string.Empty);
-                    }
-
-                    File.WriteAllText(cacheFileName.ToLowerInvariant(), contents);
-                }
-                */
 
                 // some pages signal a redirect. The redirect should be returned instead
                 if (contents.Contains(redirectContains))
