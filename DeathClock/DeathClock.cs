@@ -59,35 +59,52 @@ namespace DeathClock
 
             Console.WriteLine($"Scanning {titles.Count()} articles.");
 
-            foreach (var p in titles)
+
+            // batch titles in groups of 100 and process them concurrently
+
+            var titleQueue = new Queue<string>(titles);
+            while (titleQueue.Any())
             {
-                try
+                var block = new List<Task<Person>>();
+
+                if (block.Count < 100 && titleQueue.TryDequeue(out string title))
                 {
-                    var person = await personFactory.Create(p);
-                    if (person != null)
+                    block.Add(personFactory.Create(title));
+                }
+
+                await Task.WhenAll(block.ToArray());
+
+
+                Parallel.ForEach(block, personTask =>
+                {
+                    if (personTask.IsCompletedSuccessfully)
                     {
-                        people.Add(person);
+                        var person = personTask.Result;
+                        if (person != null)
+                        {
+                            people.Add(person);
+                        }
+                        else
+                        {
+                            var invalidPerson = new InvalidPerson() { Name = "Unknown", Reason = "Null object. " };
+                            invalidPeople.Add(invalidPerson);
+                            Interlocked.Increment(ref invalids);
+                        }
                     }
                     else
                     {
-                        var invalidPerson = new InvalidPerson() { Name = p, Reason = "Null object. " };
+                        var invalidPerson = new InvalidPerson() { Name = "Exception", Reason = personTask.Exception?.Message };
                         invalidPeople.Add(invalidPerson);
-                        Interlocked.Increment(ref invalids);
+                        Interlocked.Increment(ref errors);
                     }
-                }
-                catch (Exception ex)
-                {
-                    var invalidPerson = new InvalidPerson() { Name = p, Reason = ex.Message };
-                    invalidPeople.Add(invalidPerson);
-                    Interlocked.Increment(ref errors);
-                }
-                int _c = Interlocked.Increment(ref count);
-                if (_c % 100 == 0)
-                {
-                    var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
-                    Console.WriteLine(message);
-                }
+                    int _c = Interlocked.Increment(ref count);
+                    if (_c % 100 == 0)
+                    {
+                        var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
+                        Console.WriteLine(message);
+                    }
 
+                });
             }
 
             Console.WriteLine($"{people.Count} people found.");
@@ -217,7 +234,7 @@ namespace DeathClock
                         }
                     }
 
-                    Task.WaitAll(nestedListTaskList.ToArray());
+                    await Task.WhenAll(nestedListTaskList.ToArray());
 
                     var titles = new List<string>();
                     var nestedTitles = nestedListTaskList.SelectMany(t => t.Result);
