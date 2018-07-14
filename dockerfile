@@ -8,5 +8,5 @@ RUN mkdir DeathClock
 ADD https://github.com/RichTeaMan/DeathClock/archive/$branch.tar.gz deathclock.tar.gz
 RUN tar -xzf deathclock.tar.gz --strip-components=1 -C DeathClock
 WORKDIR /DeathClock
-RUN ./cake.sh -target=build
+RUN ./cake.sh -target=Test
 ENTRYPOINT ./cake.sh -target=Run -outputDirectory=/var/deathclock/
