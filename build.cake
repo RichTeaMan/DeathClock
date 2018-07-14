@@ -52,6 +52,7 @@ Task("Test")
 
 Task("TestRun")
     .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .Does(() =>
 {
     var command = string.Empty;
@@ -66,6 +67,7 @@ Task("TestRun")
 
 Task("Run")
     .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .Does(() =>
 {
     var command = string.Empty;
