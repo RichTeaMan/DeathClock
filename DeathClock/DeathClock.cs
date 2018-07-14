@@ -208,18 +208,23 @@ namespace DeathClock
                     {
                         listNames.Add(match.Value);
                     }
-                    var titles = new ConcurrentBag<string>();
+                    var nestedListTaskList = new List<Task<string[]>>();
                     foreach (var name in listNames)
                     {
                         if (!previousLists.Contains(name))
                         {
-                            var nestedTitles = await GetPeopleTitles(name, previousLists, level + 1);
-                            foreach (var title in nestedTitles)
-                            {
-                                logger.LogTrace($"List matched: {title}");
-                                titles.Add(title);
-                            }
+                            nestedListTaskList.Add(GetPeopleTitles(name, previousLists, level + 1));
                         }
+                    }
+
+                    Task.WaitAll(nestedListTaskList.ToArray());
+
+                    var titles = new List<string>();
+                    var nestedTitles = nestedListTaskList.SelectMany(t => t.Result);
+                    foreach (var title in nestedTitles)
+                    {
+                        logger.LogTrace($"List matched: {title}");
+                        titles.Add(title);
                     }
                     peopleTitles.AddRange(titles.Distinct());
                 }
@@ -228,7 +233,6 @@ namespace DeathClock
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 logger.LogError(ex, "Error in GetPeopleTitles.");
                 return new string[0];
             }
