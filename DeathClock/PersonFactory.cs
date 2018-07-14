@@ -100,7 +100,7 @@ namespace DeathClock
             {
                 if (death != null)
                 {
-                    LogError("${personTitle} has a death date but no birth date.");
+                    LogError($"{personTitle} has a death date but no birth date.");
                 }
                 return null;
             }
