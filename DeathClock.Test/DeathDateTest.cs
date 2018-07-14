@@ -16,13 +16,25 @@ namespace DeathClock.Test
         }
 
         [TestMethod]
-        public void CheckDeathDate()
+        public void CheckDeathDate1()
         {
             string content = File.ReadAllText("WikiJson/EricLiddell.json");
 
             var person = personFactory.CreateFromContent(content);
             
             var expectedDeathDate = new DateTime(1945, 2, 21);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
+
+        [TestMethod]
+        public void CheckDeathDate2()
+        {
+            string content = File.ReadAllText("WikiJson/HHPrice.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1984, 11, 26);
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
