@@ -25,17 +25,7 @@ namespace DeathClock
             string urlStr = string.Format(apiUrl, title);
             try
             {
-
-                if (title.Contains("Michelle_Mone"))
-                {
-                    Console.WriteLine("???");
-                    var deb = await WebCache.GetWebPageAsync(urlStr);
-                    Console.WriteLine(deb);
-                }
-
                 var document = await WebCache.GetWebPageAsync(urlStr);
-
-                
 
                 //string cacheFileName = string.Format("{0}\\{1}.html", CACHE_FOLDER, title.Replace("\"", "QUOT").Replace("/", "FSLASH").Replace("\\", "BSLASH").Replace("#", "HASH"));
 
@@ -81,20 +71,10 @@ namespace DeathClock
                         contents = await GetPage(redirectTitle);
                     }
                 }
-                if (title.Contains("Michelle_Mone"))
-                {
-                    Console.WriteLine("monemone");
-                }
                 return contents;
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine(ex);
-                if (title.Contains("Michelle_Mone"))
-                {
-                    Console.WriteLine("monemone");
-                }
                 throw ex;
             }
         }
