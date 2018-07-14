@@ -10,7 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{355BDA3B-404A-4E51-B039-6FF7D32255ED}"
 	ProjectSection(SolutionItems) = preProject
 		build.cake = build.cake
-		build.ps1 = build.ps1
+		cake.ps1 = cake.ps1
 		dockerfile = dockerfile
 		license.txt = license.txt
 		readme.md = readme.md
