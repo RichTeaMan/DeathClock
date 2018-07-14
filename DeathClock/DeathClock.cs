@@ -59,7 +59,7 @@ namespace DeathClock
 
             Console.WriteLine($"Scanning {titles.Count()} articles.");
 
-            foreach(var p in titles)
+            foreach (var p in titles)
             {
                 try
                 {
@@ -183,7 +183,9 @@ namespace DeathClock
             {
                 string peoplePage = await Utilities.GetPage(listTitle);
                 if (previousLists == null)
+                {
                     previousLists = new List<string>();
+                }
                 previousLists.Add(listTitle);
 
                 var peopleTitles = new List<string>();
@@ -211,7 +213,7 @@ namespace DeathClock
                         listNames.Add(match.Value);
                     }
                     var titles = new ConcurrentBag<string>();
-                    Parallel.ForEach(listNames, async name =>
+                    foreach (var name in listNames)
                     {
                         if (!previousLists.Contains(name))
                         {
@@ -222,7 +224,7 @@ namespace DeathClock
                                 titles.Add(title);
                             }
                         }
-                    });
+                    }
                     peopleTitles.AddRange(titles.Distinct());
                 }
 
