@@ -14,7 +14,7 @@ namespace DeathClock
         public DateParser[] BirthDateParsers { get; private set; }
         public DateParser[] DeathDateParsers { get; private set; }
 
-        public string[] DeathWords = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
+        public string[] DeathWords { get; private set; } = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
 
         private ConcurrentStack<string> errors;
 
@@ -59,7 +59,8 @@ namespace DeathClock
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy"),
                 new DateParser(@"(?<=Death date and age\|mf=yes\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd")
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
+                new DateParser(@"(?<=death date and age \|)\d+\|\d+\|\d+", "yyyy|MM|dd")
             };
         }
 
@@ -69,7 +70,12 @@ namespace DeathClock
         public async Task<Person> Create(string title)
         {
             string jsonContent = await Utilities.GetPage(title);
+            return CreateFromContent(jsonContent);
 
+        }
+
+        public Person CreateFromContent(string jsonContent)
+        {
             var personTitle = GetTitle(jsonContent);
 
             Regex nameRegex = new Regex(@"(?<=name\s+=)[^\|]+");
@@ -81,7 +87,8 @@ namespace DeathClock
             }
             else
             {
-                personName = title.Replace('_', ' ');
+                //personName = title.Replace('_', ' ');
+                personName = "Unknown";
             }
 
             DateTime? birth = ExtractDate(jsonContent, BirthDateParsers.ToList());
@@ -122,7 +129,6 @@ namespace DeathClock
 
             var person = new Person(personName, personBirthDate, personDeathDate, personDeathWordCount, personTitle, personWordCount, personDescription);
             return person;
-
         }
 
         private static DateTime? ExtractDate(string content, IEnumerable<DateParser> dateParsers)

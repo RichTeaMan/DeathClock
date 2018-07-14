@@ -16,4 +16,10 @@
     <ProjectReference Include="..\DeathClock\DeathClock.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="WikiJson\EricLiddell.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
