@@ -62,7 +62,7 @@ Task("TestRun")
 
     command += " -list List_of_Scots";
 
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });
 
 Task("Run")
@@ -77,7 +77,7 @@ Task("Run")
 
     command += " -list List_of_English_people List_of_Scots List_of_Welsh_people List_of_Irish_people Lists_of_Americans";
 
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.0/DeathClock.dll", command);
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });
 
 //////////////////////////////////////////////////////////////////////
