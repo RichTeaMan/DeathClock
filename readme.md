@@ -9,6 +9,13 @@ This project uses [Cake](https://cakebuild.net).
 * cake -target=Test
 * cake -target=Run
 
+## CI
+
+|        | Windows | Linux |
+| ------ | --------|-------|
+| Master | [![Build status](https://ci.appveyor.com/api/projects/status/upa1q3k9khvvq8jp/branch/master?svg=true)](https://ci.appveyor.com/project/RichTeaMan/deathclock/branch/master) | [![Build Status](https://travis-ci.org/RichTeaMan/DeathClock.svg?branch=master)](https://travis-ci.org/RichTeaMan/DeathClock) |
+
+
 ## Docker
 
 The Deathclock can be summoned from Docker:
