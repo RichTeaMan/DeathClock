@@ -21,31 +21,24 @@ namespace DeathClock
         {
             title = CleanTitle(title);
             string urlStr = string.Format(apiUrl, title);
-            try
-            {
-                var document = await WebCache.GetWebPageAsync(urlStr);
-                string contents = document.GetContents();
+            var document = await WebCache.GetWebPageAsync(urlStr);
+            string contents = document.GetContents();
 
-                // some pages signal a redirect. The redirect should be returned instead
-                if (contents.Contains(redirectContains))
+            // some pages signal a redirect. The redirect should be returned instead
+            if (contents.Contains(redirectContains))
+            {
+                var redirect = redirectRegex.Match(contents);
+                if (redirect.Success)
                 {
-                    var redirect = redirectRegex.Match(contents);
-                    if (redirect.Success)
-                    {
-                        string redirectTitle = CleanTitle(redirect.Value);
+                    string redirectTitle = CleanTitle(redirect.Value);
 
-                        if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
-                            throw new Exception("Endless redirect loop detected.");
+                    if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
+                        throw new Exception("Endless redirect loop detected.");
 
-                        contents = await GetPage(redirectTitle);
-                    }
+                    contents = await GetPage(redirectTitle);
                 }
-                return contents;
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return contents;
         }
 
         private static string CleanTitle(string title)

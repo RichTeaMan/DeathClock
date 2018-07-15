@@ -43,7 +43,6 @@ namespace DeathClock
 
             Directory.CreateDirectory(OutputDirectory);
 
-
             Console.WriteLine("Finding articles...");
             var titles = await FindArticleTitles(listArticles);
 
@@ -67,12 +66,19 @@ namespace DeathClock
             {
                 var block = new List<Task<Person>>();
 
-                if (block.Count < 100 && titleQueue.TryDequeue(out string title))
+                while (block.Count < 100 && titleQueue.TryDequeue(out string title))
                 {
                     block.Add(personFactory.Create(title));
                 }
 
-                await Task.WhenAll(block.ToArray());
+                try
+                {
+                    await Task.WhenAll(block.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    logger.LogTrace(ex, "Errors occured.");
+                }
 
 
                 Parallel.ForEach(block, personTask =>
