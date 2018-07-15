@@ -64,24 +64,32 @@ namespace DeathClock
             var titleQueue = new Queue<string>(titles);
             while (titleQueue.Any())
             {
-                var block = new List<Task<Person>>();
+                var block = new List<string>();
 
                 while (block.Count < 100 && titleQueue.TryDequeue(out string title))
                 {
-                    block.Add(personFactory.Create(title));
+                    block.Add(title);
                 }
+
+                var tasks = new ConcurrentBag<Task<Person>>();
+                Parallel.ForEach(block, title =>
+                {
+                    tasks.Add(personFactory.Create(title));
+                });
+
+                var concurrentMessage = $"{Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
+                Console.WriteLine(concurrentMessage);
 
                 try
                 {
-                    await Task.WhenAll(block.ToArray());
+                    await Task.WhenAll(tasks.ToArray());
                 }
                 catch (Exception ex)
                 {
                     logger.LogTrace(ex, "Errors occured.");
                 }
 
-
-                Parallel.ForEach(block, personTask =>
+                Parallel.ForEach(tasks, personTask =>
                 {
                     if (personTask.IsCompletedSuccessfully)
                     {
@@ -106,7 +114,7 @@ namespace DeathClock
                     int _c = Interlocked.Increment(ref count);
                     if (_c % 100 == 0)
                     {
-                        var message = $"\r{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. {Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
+                        var message = $"{_c} of {totals} complete. {errors} errors. {invalids} invalid articles.";
                         Console.WriteLine(message);
                     }
 
