@@ -65,10 +65,7 @@ namespace DeathClock
                 new DateParser(@"(?<=d-da\|)\d+ \w+ \d+", "dd MMMM yyyy")
             };
         }
-
-
-
-
+        
         public async Task<Person> Create(string title)
         {
             string jsonContent = await Utilities.GetPage(title);
