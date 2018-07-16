@@ -26,6 +26,7 @@ namespace DeathClock.Test
             var wikiList = wikiListFactory.CreateFromContent(content);
 
             var expectedLists = new List<string>();
+            string expectedTitle = "Lists of Americans";
 
             #region expected
 
@@ -246,6 +247,7 @@ namespace DeathClock.Test
 
             #endregion
 
+            Assert.AreEqual(expectedTitle, wikiList.Title);
             CollectionAssert.AreEquivalent(expectedLists, wikiList.ListTitles.ToArray());
         }
 
@@ -257,6 +259,7 @@ namespace DeathClock.Test
             var wikiList = wikiListFactory.CreateFromContent(content);
 
             var expectedPersonList = new List<string>();
+            string expectedTitle = "List of Afghan Americans";
 
             #region expected
 
@@ -285,6 +288,7 @@ namespace DeathClock.Test
 
             #endregion
 
+            Assert.AreEqual(expectedTitle, wikiList.Title);
             CollectionAssert.AreEquivalent(expectedPersonList, wikiList.PersonTitles.ToArray());
         }
 

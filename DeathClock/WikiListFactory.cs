@@ -31,7 +31,7 @@ namespace DeathClock
 
         public WikiListPage CreateFromContent(string jsonContent)
         {
-            string listTitle = new Regex("(?<=title\": \")[\"]+").Match(jsonContent).Value;
+            string listTitle = new Regex("(?<=title\"\\s*:\\s*\")[^\"]+").Match(jsonContent).Value;
             try
             {
                 var personTitles = new List<string>();
