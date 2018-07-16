@@ -1,0 +1,3 @@
+[submodule "WebCache"]
+	path = WebCache
+	url = https://github.com/RichTeaMan/WebCache.git
