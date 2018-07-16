@@ -12,8 +12,8 @@ namespace DeathClock
 
         public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 20 };
 
-        public const string apiUrl = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
-        public const string Url = "http://en.wikipedia.org/wiki/{0}";
+        public const string apiUrl = "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
+        public const string Url = "https://en.wikipedia.org/wiki/{0}";
         private readonly static string redirectContains = "#REDIRECT";
         private static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
@@ -48,6 +48,11 @@ namespace DeathClock
             if (title.Contains('|'))
             {
                 title = title.Substring(0, title.IndexOf('|'));
+            }
+            // remove #, they seem to break the API
+            if (title.Contains('#'))
+            {
+                title = title.Substring(0, title.IndexOf('#'));
             }
             if (title.Contains('!'))
             {
