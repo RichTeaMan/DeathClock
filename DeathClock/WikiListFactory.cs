@@ -16,6 +16,11 @@ namespace DeathClock
         /// </summary>
         private readonly ILogger<WikiListFactory> logger;
 
+        /// <summary>
+        /// Gets an array of strings that are not allowed in person titles.
+        /// </summary>
+        public readonly string[] RestrictedPersonTokens = new[] { "Category", "List", " people", ":", "#" };
+
         public WikiListFactory(ILogger<WikiListFactory> logger)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,7 +45,8 @@ namespace DeathClock
                 var matches = personRegex.Matches(jsonContent);
                 foreach (Match match in matches)
                 {
-                    if (!match.Value.Contains("Category") && !match.Value.Contains("List") && !match.Value.Contains(" people") && !match.Value.Contains(':'))
+
+                    if (!RestrictedPersonTokens.Any(t => match.Value.Contains(t)))
                     {
                         var title = match.Value.Replace(' ', '_');
                         logger.LogTrace($"Person matched: {title}");
