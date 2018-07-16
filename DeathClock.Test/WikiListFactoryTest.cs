@@ -249,5 +249,45 @@ namespace DeathClock.Test
             CollectionAssert.AreEquivalent(expectedLists, wikiList.ListTitles.ToArray());
         }
 
+        [TestMethod]
+        public void CheckPersonList1()
+        {
+            string content = File.ReadAllText("WikiJson/ListOfAfghanAmericans.json");
+            //string content = File.ReadAllText("WikiJson/1.json");
+
+            var wikiList = wikiListFactory.CreateFromContent(content);
+
+            var expectedPersonList = new List<string>();
+
+            #region expected
+
+            expectedPersonList.Add("Stephen_J._Townsend");
+            expectedPersonList.Add("Ehsan_Aman");
+            expectedPersonList.Add("Tamim_Ansary");
+            expectedPersonList.Add("Zohra_Daoud");
+            expectedPersonList.Add("Farhad_Darya");
+            expectedPersonList.Add("Qader_Eshpari");
+            expectedPersonList.Add("Azita_Ghanizada");
+            expectedPersonList.Add("Abdul_W._Haqiqi");
+            expectedPersonList.Add("Khaled_Hosseini");
+            expectedPersonList.Add("Ali_Ahmad_Jalali");
+            expectedPersonList.Add("Zalmay_Khalilzad");
+            expectedPersonList.Add("Wallace_Fard_Muhammad");
+            expectedPersonList.Add("Naim_Popal");
+            expectedPersonList.Add("Ahmad_Khan_Rahami");
+            expectedPersonList.Add("Haidar_Salim");
+            expectedPersonList.Add("Nazif_Shahrani");
+            expectedPersonList.Add("Nabil_Miskinyar");
+            expectedPersonList.Add("Fariba_Nawa");
+            expectedPersonList.Add("Vida_Samadzai");
+            expectedPersonList.Add("Jawed_Wassel");
+            expectedPersonList.Add("Mariam_Wafa");
+            expectedPersonList.Add("Najibullah_Zazi");
+
+            #endregion
+
+            CollectionAssert.AreEquivalent(expectedPersonList, wikiList.PersonTitles.ToArray());
+        }
+
     }
 }
