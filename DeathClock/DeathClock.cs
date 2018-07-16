@@ -153,8 +153,6 @@ namespace DeathClock
                 results.AddRange(peopleTitles);
             }
 
-            Console.ReadKey();
-
             return results.Distinct().OrderBy(p => p).ToList();
         }
 
