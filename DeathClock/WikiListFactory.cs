@@ -73,5 +73,37 @@ namespace DeathClock
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Creates a list of wiki lists, recursively built from the title wiki list.
+        /// </summary>
+        /// <param name="title">Root wiki list title.</param>
+        /// <param name="levels">Levels of recursion to go.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<WikiListPage>> CreateRecursively(string title, int levels)
+        {
+            var resultWikiLists = new List<WikiListPage>();
+            var wikiListTitleSet = new HashSet<string>();
+            var rootList = await Create(title);
+
+            resultWikiLists.Add(rootList);
+            wikiListTitleSet.Add(rootList.Title);
+
+            if (levels > 0)
+            {
+                foreach (var listTitle in rootList.ListTitles.Where(l => !wikiListTitleSet.Contains(l)))
+                {
+                    var childListPages = await CreateRecursively(listTitle, levels - 1);
+
+                    foreach (var childListPage in childListPages.Where(l => !wikiListTitleSet.Contains(l.Title)))
+                    {
+                        resultWikiLists.Add(childListPage);
+                        wikiListTitleSet.Add(childListPage.Title);
+                    }
+                }
+            }
+
+            return resultWikiLists;
+        }
     }
 }
