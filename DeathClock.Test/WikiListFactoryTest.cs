@@ -253,7 +253,6 @@ namespace DeathClock.Test
         public void CheckPersonList1()
         {
             string content = File.ReadAllText("WikiJson/ListOfAfghanAmericans.json");
-            //string content = File.ReadAllText("WikiJson/1.json");
 
             var wikiList = wikiListFactory.CreateFromContent(content);
 
