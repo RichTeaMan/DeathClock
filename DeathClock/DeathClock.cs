@@ -27,14 +27,20 @@ namespace DeathClock
         private readonly PersonFactory personFactory;
 
         /// <summary>
+        /// Wiki list factory.
+        /// </summary>
+        private readonly WikiListFactory wikiListFactory;
+
+        /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory)
+        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory)
         {
             this.logger = logger;
             this.personFactory = personFactory;
+            this.wikiListFactory = wikiListFactory;
         }
 
         public async Task Start(string[] listArticles)
@@ -139,10 +145,15 @@ namespace DeathClock
 
             foreach (var listTitle in listArticles)
             {
-                var peopleTitles = await GetPeopleTitles(listTitle);
+                var wikiListPages = await wikiListFactory.CreateRecursively(listTitle, 2);
+
+                var peopleTitles = wikiListPages.SelectMany(w => w.PersonTitles).ToArray();
+
                 Console.WriteLine($"{peopleTitles.Count()} articles found from '{listTitle}'.");
                 results.AddRange(peopleTitles);
             }
+
+            Console.ReadKey();
 
             return results.Distinct().OrderBy(p => p).ToList();
         }
@@ -199,79 +210,5 @@ namespace DeathClock
             File.WriteAllText(path, sb.ToString());
         }
 
-        private async Task<string[]> GetPeopleTitles(string listTitle, List<string> previousLists = null, int level = 0)
-        {
-            logger.LogTrace($"GetPeopleTitles started. List title: {listTitle} Level: {level}");
-            if ((previousLists != null && previousLists.Contains(listTitle)) || level >= 2)
-            {
-                return new string[0];
-            }
-            try
-            {
-                string peoplePage = await Utilities.GetPage(listTitle);
-                if (previousLists == null)
-                {
-                    previousLists = new List<string>();
-                }
-                previousLists.Add(listTitle);
-
-                var peopleTitles = new List<string>();
-                Regex personRegex = new Regex(@"(?<=\*[^\[]*\[\[)[^\[\]\|]+");
-
-                var matches = personRegex.Matches(peoplePage);
-                foreach (Match match in matches)
-                {
-                    if (!match.Value.Contains("Category") && !match.Value.Contains("List") && !match.Value.Contains(" people") && !match.Value.Contains(':'))
-                    {
-                        var title = match.Value.Replace(' ', '_');
-                        logger.LogTrace($"Person matched: {title}");
-                        peopleTitles.Add(title);
-                    }
-                }
-
-                // check for other people lists in this list
-                Regex listRegex = new Regex(@"(?<=\[\[)List of[^\]]+");
-                var listMatches = listRegex.Matches(peoplePage);
-                if (listMatches.Count > 0)
-                {
-                    var listNames = new List<string>();
-                    foreach (Match match in listMatches)
-                    {
-                        listNames.Add(match.Value);
-                    }
-                    var nestedListTaskList = new List<Task<string[]>>();
-                    foreach (var name in listNames)
-                    {
-                        if (!previousLists.Contains(name))
-                        {
-                            nestedListTaskList.Add(GetPeopleTitles(name, previousLists, level + 1));
-                        }
-                    }
-
-                    await Task.WhenAll(nestedListTaskList.ToArray());
-
-                    var titles = new List<string>();
-                    var nestedTitles = nestedListTaskList.SelectMany(t => t.Result);
-                    foreach (var title in nestedTitles)
-                    {
-                        logger.LogTrace($"List matched: {title}");
-                        titles.Add(title);
-                    }
-                    peopleTitles.AddRange(titles.Distinct());
-                }
-
-                return peopleTitles.ToArray();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error in GetPeopleTitles.");
-                return new string[0];
-            }
-            finally
-            {
-                logger.LogTrace($"GetPeopleTitles ended. List title: {listTitle} Level: {level}");
-            }
-
-        }
     }
 }

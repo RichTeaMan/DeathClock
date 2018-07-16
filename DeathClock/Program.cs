@@ -96,6 +96,7 @@ namespace DeathClock
             containerBuilder.Populate(serviceCollection);
             containerBuilder.RegisterType<DeathClock>().As<DeathClock>();
             containerBuilder.RegisterType<PersonFactory>().As<PersonFactory>();
+            containerBuilder.RegisterType<WikiListFactory>().As<WikiListFactory>();
             return containerBuilder.Build();
         }
     }
