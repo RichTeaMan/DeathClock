@@ -54,7 +54,8 @@ namespace DeathClock
                 var listNames = new List<string>();
                 foreach (Match match in listMatches)
                 {
-                    listNames.Add(match.Value);
+                    var subListTitle = match.Value.Replace(' ', '_');
+                    listNames.Add(subListTitle);
                 }
 
                 var wikiList = new WikiListPage(listTitle, listNames.Distinct(), personTitles.Distinct());
