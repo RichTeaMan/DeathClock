@@ -86,5 +86,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate7()
+        {
+            string content = File.ReadAllText("WikiJson/EricDWalrond.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1966, 08, 08);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
