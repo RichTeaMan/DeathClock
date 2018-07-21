@@ -27,7 +27,7 @@ namespace DeathClock
             errors = new ConcurrentStack<string>();
             BirthDateParsers = new DateParser[]
             {
-                new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|(df=y(es|)\||))\d+\|\d+\|\d+",
+                new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|((d|m)f=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
                 new DateParser(@"(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?i)(?<=birthdate(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
@@ -99,9 +99,9 @@ namespace DeathClock
                 personName = "Unknown";
             }
 
-            DateTime? birth = ExtractDate(jsonContent, BirthDateParsers.ToList());
+            DateTime? birth = ExtractDate(jsonContent, BirthDateParsers);
 
-            DateTime? death = ExtractDate(jsonContent, DeathDateParsers.ToList());
+            DateTime? death = ExtractDate(jsonContent, DeathDateParsers);
 
             if (birth == null)
             {
