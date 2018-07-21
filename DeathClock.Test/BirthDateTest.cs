@@ -38,5 +38,29 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedBirthDate, person?.BirthDate);
         }
+
+        [TestMethod]
+        public void CheckBirthDate3()
+        {
+            string content = File.ReadAllText("WikiJson/Zozimus.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedBirthDate = new DateTime(1794, 01, 01);
+
+            Assert.AreEqual(expectedBirthDate, person?.BirthDate);
+        }
+
+        [TestMethod]
+        public void CheckBirthDate4()
+        {
+            string content = File.ReadAllText("WikiJson/JamesEKelly.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedBirthDate = new DateTime(1855, 07, 30);
+
+            Assert.AreEqual(expectedBirthDate, person?.BirthDate);
+        }
     }
 }

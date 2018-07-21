@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="WikiJson\Zozimus.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="WikiJson\Zulfiya.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

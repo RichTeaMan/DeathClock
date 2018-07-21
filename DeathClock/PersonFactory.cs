@@ -29,7 +29,7 @@ namespace DeathClock
             {
                 new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|((d|m)f=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
-                new DateParser(@"(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
+                new DateParser(@"(?i)(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?i)(?<=birthdate(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "MMMM d yyyy"),
@@ -41,7 +41,7 @@ namespace DeathClock
                 new DateParser(@"(?i)(?<={{birth-date\|)\d+", "yyyy"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
                 new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=\(c\. )\d+", "yyyy"),
+                new DateParser(@"(?<=birth_date\s+= c\. )\d+", "yyyy"),
             };
 
             DeathDateParsers = new DateParser[]
