@@ -30,6 +30,7 @@ namespace DeathClock
                 new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
                 new DateParser(@"(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
+                new DateParser(@"(?i)(?<=birthdate(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "MMMM d yyyy"),
                 new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
