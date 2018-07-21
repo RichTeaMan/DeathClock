@@ -110,5 +110,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate9()
+        {
+            string content = File.ReadAllText("WikiJson/EllamaeEllisLeague.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1991, 03, 04);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
