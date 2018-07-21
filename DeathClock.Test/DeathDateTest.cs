@@ -74,5 +74,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate6()
+        {
+            string content = File.ReadAllText("WikiJson/GladysTantaquidgeon.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(2005, 11, 01);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
