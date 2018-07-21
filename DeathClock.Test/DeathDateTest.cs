@@ -62,5 +62,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate5()
+        {
+            string content = File.ReadAllText("WikiJson/AnniAlbers.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1994, 05, 09);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

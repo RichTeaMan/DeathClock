@@ -66,7 +66,9 @@ namespace DeathClock
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
                 new DateParser(@"(?<=death date and age \|)\d+\|\d+\|\d+", "yyyy|MM|dd"),
                 new DateParser(@"(?<=death date and age \|)\d+\|\d+\|\d+", "yyyy|M|dd"),
+                new DateParser(@"(?<=death date and age \|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=d-da\|)\d+ \w+ \d+", "dd MMMM yyyy")
+
             };
         }
         
