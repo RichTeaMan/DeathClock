@@ -10,12 +10,12 @@ namespace DeathClock
     public class DateParser
     {
         public Regex DateRegex { get; private set; }
-        public string DateFormat { get; private set; }
+        public string[] DateFormats { get; private set; }
 
-        public DateParser(string regex, string dateFormat)
+        public DateParser(string regex, params string[] dateFormats)
         {
             DateRegex = new Regex(regex, RegexOptions.Compiled);
-            DateFormat = dateFormat;
+            DateFormats = dateFormats;
         }
 
         public DateTime? GetDate(string content)
@@ -26,7 +26,7 @@ namespace DeathClock
                 try
                 {
                     var value = DateParser.AbbreviationFix(match.Value).Replace("\\n", "").Trim();
-                    var date = DateTime.ParseExact(value, DateFormat, null);
+                    var date = DateTime.ParseExact(value, DateFormats, null);
                     return date;
                 }
                 catch { }

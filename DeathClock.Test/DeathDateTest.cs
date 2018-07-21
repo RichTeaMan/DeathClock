@@ -98,5 +98,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate8()
+        {
+            string content = File.ReadAllText("WikiJson/LesterJMaitland.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1990, 03, 27);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
