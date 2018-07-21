@@ -15,6 +15,7 @@ namespace DeathClock
 
         public DateParser[] BirthDateParsers { get; private set; }
         public DateParser[] DeathDateParsers { get; private set; }
+        public Regex[] DescriptionRegexList { get; private set; }
 
         public string[] DeathWords { get; private set; } = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
 
@@ -70,8 +71,15 @@ namespace DeathClock
                 new DateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
             };
+
+            var descriptionRegexs = new[] {
+                @"(?<=SHORT DESCRIPTION[ =]*)[^\n|]+",
+                @"(?<=occupation[ =]*\[\[)[^\]]+"
+            };
+
+            DescriptionRegexList = descriptionRegexs.Select(r => new Regex(r, RegexOptions.Compiled)).ToArray();
         }
-        
+
         public async Task<Person> Create(string title)
         {
             string jsonContent = await wikiUtility.GetPage(title);
@@ -120,16 +128,15 @@ namespace DeathClock
 
             var personWordCount = jsonContent.Count(c => c == ' ');
 
-            Regex descRegex = new Regex("(?<=SHORT DESCRIPTION[ =]*)[^\n|]+");
-            var descMatch = descRegex.Match(jsonContent);
-            string personDescription;
-            if (descMatch.Success)
+            string personDescription = "Unknown";
+            foreach (var descRegex in DescriptionRegexList)
             {
-                personDescription = descMatch.Value.Replace("\\n", "").Replace("=", "").Trim();
-            }
-            else
-            {
-                personDescription = "Unknown";
+                var descMatch = descRegex.Match(jsonContent);
+                if (descMatch.Success)
+                {
+                    personDescription = descMatch.Value.Replace("\\n", "").Replace("=", "").Trim();
+                    break;
+                }
             }
 
             var person = new Person(personName, personBirthDate, personDeathDate, personDeathWordCount, personTitle, personWordCount, personDescription);
