@@ -134,5 +134,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate11()
+        {
+            string content = File.ReadAllText("WikiJson/HaroldOsborn.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1975, 04, 05);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
