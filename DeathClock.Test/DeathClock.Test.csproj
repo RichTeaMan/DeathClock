@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="WikiJson\RousasRushdoony.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="WikiJson\EllamaeEllisLeague.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

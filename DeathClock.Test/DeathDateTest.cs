@@ -122,5 +122,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate10()
+        {
+            string content = File.ReadAllText("WikiJson/RousasRushdoony.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(2001, 02, 08);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
