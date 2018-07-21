@@ -158,5 +158,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate13()
+        {
+            string content = File.ReadAllText("WikiJson/BirendranathSircar.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1980, 11, 28);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
