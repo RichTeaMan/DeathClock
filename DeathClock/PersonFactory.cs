@@ -65,7 +65,7 @@ namespace DeathClock
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd yyyy"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|d"),
                 new DateParser(@"(?<=death date and age \|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|dd", "yyyy|M|d"),
-                new DateParser(@"(?<=d-da\|)\d+ \w+ \d+", "dd MMMM yyyy"),
+                new DateParser(@"(?<=d-da\|)[^\|<\(]+", "dd MMMM yyyy", "MMMM dd yyyy"),
                 new DateParser(@"(?<=Death\-date and age\|)[^\|\]]+", "MMMM d yyyy"),
                 new DateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),

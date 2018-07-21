@@ -146,5 +146,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate12()
+        {
+            string content = File.ReadAllText("WikiJson/UkichiroNakaya.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1962, 04, 11);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
