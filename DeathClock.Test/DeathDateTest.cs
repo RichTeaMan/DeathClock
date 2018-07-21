@@ -170,5 +170,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate14()
+        {
+            string content = File.ReadAllText("WikiJson/RichardEberhart.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(2005, 06, 09);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
