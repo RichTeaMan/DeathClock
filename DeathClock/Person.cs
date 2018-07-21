@@ -51,7 +51,7 @@ namespace DeathClock
         {
             get
             {
-                return string.Format(Utilities.Url, Title.Replace(' ', '_'));
+                return string.Format(WikiUtility.Url, Title.Replace(' ', '_'));
             }
         }
 
@@ -59,7 +59,7 @@ namespace DeathClock
         {
             get
             {
-                return string.Format(Utilities.apiUrl, Title);
+                return string.Format(WikiUtility.apiUrl, Title);
             }
         }
 

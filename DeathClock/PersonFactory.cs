@@ -11,6 +11,8 @@ namespace DeathClock
 {
     public class PersonFactory
     {
+        private WikiUtility wikiUtility;
+
         public DateParser[] BirthDateParsers { get; private set; }
         public DateParser[] DeathDateParsers { get; private set; }
 
@@ -18,8 +20,10 @@ namespace DeathClock
 
         private ConcurrentStack<string> errors;
 
-        public PersonFactory()
+        public PersonFactory(WikiUtility wikiUtility)
         {
+            this.wikiUtility = wikiUtility;
+
             errors = new ConcurrentStack<string>();
             BirthDateParsers = new DateParser[]
             {
@@ -68,7 +72,7 @@ namespace DeathClock
         
         public async Task<Person> Create(string title)
         {
-            string jsonContent = await Utilities.GetPage(title);
+            string jsonContent = await wikiUtility.GetPage(title);
             return CreateFromContent(jsonContent);
 
         }

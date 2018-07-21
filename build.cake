@@ -9,6 +9,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
 var outputDirectory = Argument("outputDirectory", string.Empty);
+var cacheDirectory = Argument("cacheDirectory", string.Empty);
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -59,6 +60,9 @@ Task("TestRun")
     if (!string.IsNullOrEmpty(outputDirectory)) {
         command += $"-outputDirectory {outputDirectory}";
     }
+    if (!string.IsNullOrEmpty(cacheDirectory)) {
+        command += $" -cacheDirectory {cacheDirectory}";
+    }
 
     command += " -list List_of_Scots";
 
@@ -73,6 +77,9 @@ Task("Run")
     var command = string.Empty;
     if (!string.IsNullOrEmpty(outputDirectory)) {
         command += $"-outputDirectory {outputDirectory}";
+    }
+    if (!string.IsNullOrEmpty(cacheDirectory)) {
+        command += $" -cacheDirectory {cacheDirectory}";
     }
 
     command += " -list List_of_English_people List_of_Scots List_of_Welsh_people List_of_Irish_people Lists_of_Americans";

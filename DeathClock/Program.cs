@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using RichTea.CommandLineParser;
+using RichTea.WebCache;
 
 namespace DeathClock
 {
@@ -55,19 +50,15 @@ namespace DeathClock
             }
         }
 
-        static async Task xMain(string[] args)
-        {
-            await RunDeathDeathclock(new[] { "List_of_Scots" }, "testrun");
-        }
-
         [DefaultClCommand]
         public static async Task RunDeathDeathclock(
             [ClArgs("list")]string[] listArticles,
-            [ClArgs("outputDirectory", "od")]string outputDirectory = "Results")
+            [ClArgs("outputDirectory", "od")]string outputDirectory = "Results",
+            [ClArgs("cacheDirectory", "cd")]string cacheDirectory = null)
         {
             Console.WriteLine("Beginning the Deathclock.");
 
-            using (Container = BuildDiContainer(outputDirectory))
+            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
             {
                 Directory.CreateDirectory(outputDirectory);
 
@@ -84,7 +75,7 @@ namespace DeathClock
         /// <summary>
         /// Builds the dependency injection container.
         /// </summary>
-        private static IContainer BuildDiContainer(string resultDirectory)
+        private static IContainer BuildDiContainer(string resultDirectory, string cacheDirectory)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging(l =>
@@ -97,6 +88,19 @@ namespace DeathClock
             containerBuilder.RegisterType<DeathClock>().As<DeathClock>();
             containerBuilder.RegisterType<PersonFactory>().As<PersonFactory>();
             containerBuilder.RegisterType<WikiListFactory>().As<WikiListFactory>();
+            containerBuilder.RegisterType<WikiUtility>().As<WikiUtility>();
+
+            WebCache webCache;
+            if (string.IsNullOrEmpty(cacheDirectory))
+            {
+                webCache = new WebCache("DeathListCache");
+            }
+            else
+            {
+                webCache = new WebCache("DeathListCache", cacheDirectory);
+            }
+
+            containerBuilder.RegisterInstance(webCache);
             return containerBuilder.Build();
         }
     }

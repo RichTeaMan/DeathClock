@@ -51,7 +51,7 @@ namespace DeathClock
                 sb.AppendLine("<tr>");
                 foreach (var header in Headers)
                 {
-                    sb.AppendLine("<th>{0}</th>", header);
+                    sb.AppendLine($"<th>{header}</th>");
                 }
                 sb.AppendLine("</tr>");
             }
@@ -61,7 +61,7 @@ namespace DeathClock
                 sb.AppendLine("<tr>");
                 foreach (var cell in row)
                 {
-                    sb.AppendLine("<td>{0}</td>", cell);
+                    sb.AppendLine($"<td>{cell}</td>");
                 }
                 sb.AppendLine("</tr>");
             }

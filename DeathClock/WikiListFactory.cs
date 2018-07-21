@@ -17,19 +17,25 @@ namespace DeathClock
         private readonly ILogger<WikiListFactory> logger;
 
         /// <summary>
+        /// Wiki utility.
+        /// </summary>
+        private readonly WikiUtility wikiUtility;
+
+        /// <summary>
         /// Gets an array of strings that are not allowed in person titles.
         /// </summary>
         public readonly string[] RestrictedPersonTokens = new[] { "Category", "List", " people", ":", "#" };
 
-        public WikiListFactory(ILogger<WikiListFactory> logger)
+        public WikiListFactory(ILogger<WikiListFactory> logger, WikiUtility wikiUtility)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.wikiUtility = wikiUtility;
         }
 
         public async Task<WikiListPage> Create(string title)
         {
             logger.LogTrace($"GetPeopleTitles started. List title: {title}.");
-            string jsonContent = await Utilities.GetPage(title);
+            string jsonContent = await wikiUtility.GetPage(title);
             return CreateFromContent(jsonContent);
 
         }

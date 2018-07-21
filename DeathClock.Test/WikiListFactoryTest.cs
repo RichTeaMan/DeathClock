@@ -15,7 +15,7 @@ namespace DeathClock.Test
         public void Setup()
         {
             var logger = new LoggerFactory().AddConsole().AddDebug().CreateLogger<WikiListFactory>();
-            wikiListFactory = new WikiListFactory(logger);
+            wikiListFactory = new WikiListFactory(logger, null);
         }
 
         [TestMethod]

@@ -7,21 +7,25 @@ using System.Threading.Tasks;
 
 namespace DeathClock
 {
-    public static class Utilities
+    public class WikiUtility
     {
-
-        public readonly static WebCache WebCache = new WebCache("DeathListCacheCore") { MaxConcurrentDownloads = 20 };
-
         public const string apiUrl = "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={0}&prop=revisions&rvprop=content";
         public const string Url = "https://en.wikipedia.org/wiki/{0}";
         private readonly static string redirectContains = "#REDIRECT";
         private static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
 
-        public async static Task<string> GetPage(string title)
+        private readonly WebCache webCache;
+
+        public WikiUtility(WebCache webCache)
+        {
+            this.webCache = webCache ?? throw new ArgumentNullException(nameof(webCache));
+        }
+
+        public async Task<string> GetPage(string title)
         {
             title = CleanTitle(title);
             string urlStr = string.Format(apiUrl, title);
-            var document = await WebCache.GetWebPageAsync(urlStr);
+            var document = await webCache.GetWebPageAsync(urlStr);
             string contents = document.GetContents();
 
             // some pages signal a redirect. The redirect should be returned instead
@@ -41,7 +45,7 @@ namespace DeathClock
             return contents;
         }
 
-        private static string CleanTitle(string title)
+        private string CleanTitle(string title)
         {
             // title before pipe is the page that should be linked, after pipe is the text for
             // that particular link
@@ -60,11 +64,6 @@ namespace DeathClock
             }
 
             return title;
-        }
-
-        public static StringBuilder AppendLine(this StringBuilder stringBuilder, string value, params object[] arg)
-        {
-            return stringBuilder.AppendLine(string.Format(value, arg));
         }
 
     }

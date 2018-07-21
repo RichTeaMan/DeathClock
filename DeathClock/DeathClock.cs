@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using RichTea.WebCache;
 
 namespace DeathClock
 {
@@ -32,20 +33,28 @@ namespace DeathClock
         private readonly WikiListFactory wikiListFactory;
 
         /// <summary>
+        /// Web cache.
+        /// </summary>
+        private readonly WebCache webCache;
+
+        /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory)
+        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache)
         {
             this.logger = logger;
             this.personFactory = personFactory;
             this.wikiListFactory = wikiListFactory;
+            this.webCache = webCache;
         }
 
         public async Task Start(string[] listArticles)
         {
             logger.LogTrace("Deathclock started.");
+            logger.LogInformation($"Output directory: {OutputDirectory}");
+            logger.LogInformation($"Cache directory: {webCache.CachePath}");
 
             Directory.CreateDirectory(OutputDirectory);
 
@@ -83,7 +92,7 @@ namespace DeathClock
                     tasks.Add(personFactory.Create(title));
                 });
 
-                var concurrentMessage = $"{Utilities.WebCache.ConcurrentDownloads} concurrent downloads";
+                var concurrentMessage = $"{webCache.ConcurrentDownloads} concurrent downloads";
                 Console.WriteLine(concurrentMessage);
 
                 try
@@ -198,7 +207,7 @@ namespace DeathClock
             sb.AppendLine($"<p>Showing {persons.Count()} people.</p>");
             if (persons.Count() > 0)
             {
-                sb.AppendLine("<p>Average age is {0}.", persons.Average(p => p.Age));
+                sb.AppendLine($"<p>Average age is {persons.Average(p => p.Age)}.");
             }
             sb.Append(table.GetHtml());
 
