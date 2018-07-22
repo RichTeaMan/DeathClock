@@ -218,5 +218,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate18()
+        {
+            string content = File.ReadAllText("WikiJson/TonySisti.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1983, 01, 01);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
