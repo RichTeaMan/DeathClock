@@ -50,5 +50,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDescription, person.Description);
         }
+
+        [TestMethod]
+        public void CheckDescription4()
+        {
+            string content = File.ReadAllText("WikiJson/WilliamGrover-Williams.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDescription = "Racing driver";
+
+            Assert.AreEqual(expectedDescription, person.Description);
+        }
     }
 }

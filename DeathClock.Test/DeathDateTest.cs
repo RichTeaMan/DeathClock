@@ -242,5 +242,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate20()
+        {
+            string content = File.ReadAllText("WikiJson/WilliamGrover-Williams.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1945, 03, 01);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

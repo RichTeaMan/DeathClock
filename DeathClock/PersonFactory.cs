@@ -71,13 +71,13 @@ namespace DeathClock
                 new DateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
                 new DateParser(@"(?<=disappeared_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
+                new DateParser(@"(?<=death_date = \w+ or )\w+, \d+", "MMMM yyyy"),
             };
             var descriptionRegexs = new[] {
                 @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
-                @"(?<=occupation[ =]*\[\[)[^\]]+",
-                @"(?<=occupation[ =]*(\[\[)?)[^\|\]]+",
+                @"(?<=occupation[ =]*\[\[)[^\]<]+",
+                @"(?<=occupation[ =]*(\[\[)?)[^\|\]<]+",
             };
-
             DescriptionRegexList = descriptionRegexs.Select(r => new Regex(r, RegexOptions.Compiled)).ToArray();
         }
 
