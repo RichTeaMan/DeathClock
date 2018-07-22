@@ -74,7 +74,8 @@ namespace DeathClock
             };
             var descriptionRegexs = new[] {
                 @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
-                @"(?<=occupation[ =]*\[\[)[^\]]+"
+                @"(?<=occupation[ =]*\[\[)[^\]]+",
+                @"(?<=occupation[ =]*(\[\[)?)[^\|\]]+",
             };
 
             DescriptionRegexList = descriptionRegexs.Select(r => new Regex(r, RegexOptions.Compiled)).ToArray();

@@ -38,5 +38,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDescription, person.Description);
         }
+
+        [TestMethod]
+        public void CheckDescription3()
+        {
+            string content = File.ReadAllText("WikiJson/SonHouse.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDescription = "Musician";
+
+            Assert.AreEqual(expectedDescription, person.Description);
+        }
     }
 }
