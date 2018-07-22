@@ -182,5 +182,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate15()
+        {
+            string content = File.ReadAllText("WikiJson/AdolphMurie.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1974, 08, 16);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
