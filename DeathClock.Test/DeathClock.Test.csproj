@@ -23,6 +23,9 @@
     <None Update="WikiJson\AdolphMurie.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="WikiJson\TahirDizdari.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="WikiJson\RichardEberhart.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

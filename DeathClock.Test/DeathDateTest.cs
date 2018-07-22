@@ -206,5 +206,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate17()
+        {
+            string content = File.ReadAllText("WikiJson/TahirDizdari.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1972, 05, 09);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
