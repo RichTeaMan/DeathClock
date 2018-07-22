@@ -194,5 +194,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate16()
+        {
+            string content = File.ReadAllText("WikiJson/GenrikhLyushkov.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1945, 08, 01);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

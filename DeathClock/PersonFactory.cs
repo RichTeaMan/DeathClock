@@ -70,6 +70,7 @@ namespace DeathClock
                 new DateParser(@"(?<=Death\-date and age\|)[^\|\]]+", "MMMM d yyyy"),
                 new DateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d"),
+                new DateParser(@"(?<=disappeared_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
             };
             var descriptionRegexs = new[] {
                 @"(?<=SHORT DESCRIPTION[ =]*)[^\n|]+",
@@ -125,7 +126,7 @@ namespace DeathClock
                 personDeathWordCount += wordRegex.Matches(jsonContent).Count;
             }
 
-            var personWordCount = jsonContent.Count(c => c == ' ');
+            var personWordCount = jsonContent.Split(" ", StringSplitOptions.RemoveEmptyEntries).Count();
 
             string personDescription = "Unknown";
             foreach (var descRegex in DescriptionRegexList)
