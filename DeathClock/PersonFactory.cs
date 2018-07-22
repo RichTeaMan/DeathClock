@@ -73,7 +73,7 @@ namespace DeathClock
                 new DateParser(@"(?<=disappeared_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
             };
             var descriptionRegexs = new[] {
-                @"(?<=SHORT DESCRIPTION[ =]*)[^\n|]+",
+                @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
                 @"(?<=occupation[ =]*\[\[)[^\]]+"
             };
 

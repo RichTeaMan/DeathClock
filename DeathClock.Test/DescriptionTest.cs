@@ -16,13 +16,25 @@ namespace DeathClock.Test
         }
 
         [TestMethod]
-        public void CheckDescription()
+        public void CheckDescription1()
         {
             string content = File.ReadAllText("WikiJson/RichardEberhart.json");
 
             var person = personFactory.CreateFromContent(content);
 
             var expectedDescription = "Poet";
+
+            Assert.AreEqual(expectedDescription, person.Description);
+        }
+
+        [TestMethod]
+        public void CheckDescription2()
+        {
+            string content = File.ReadAllText("WikiJson/ElizabethII.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDescription = "Queen of the United Kingdom and the other Commonwealth realms";
 
             Assert.AreEqual(expectedDescription, person.Description);
         }
