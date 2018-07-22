@@ -52,6 +52,7 @@ namespace DeathClock
                 new DateParser(@"(?<=Date of death\|)[^\]]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death-date and age\|(df=yes\|)?)[^\|\]]+", "d MMMM yyyy", "MMMM d yyyy"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<{]+", "d MMMM yyyy"),
+                new DateParser(@"(?<=death_date =\\n)[^\\\|<{]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<]+", "MMMM d yyyy"),
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
@@ -77,6 +78,7 @@ namespace DeathClock
                 @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
                 @"(?<=occupation[ =]*\[\[)[^\]<]+",
                 @"(?<=occupation[ =]*(\[\[)?)[^\|\]<]+",
+                @"(?<=title[ =]*\[\[)[^\|\]<]+",
             };
             DescriptionRegexList = descriptionRegexs.Select(r => new Regex(r, RegexOptions.Compiled)).ToArray();
         }

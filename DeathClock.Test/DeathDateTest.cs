@@ -254,5 +254,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate21()
+        {
+            string content = File.ReadAllText("WikiJson/PopeCyrilVIofAlexandria.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1971, 03, 09);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

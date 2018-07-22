@@ -62,5 +62,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDescription, person.Description);
         }
+
+        [TestMethod]
+        public void CheckDescription5()
+        {
+            string content = File.ReadAllText("WikiJson/PopeCyrilVIofAlexandria.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDescription = "Pope of the Coptic Orthodox Church of Alexandria";
+
+            Assert.AreEqual(expectedDescription, person.Description);
+        }
     }
 }
