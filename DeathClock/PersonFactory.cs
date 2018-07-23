@@ -43,8 +43,6 @@ namespace DeathClock
                 new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
                 new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
                 new DateParser(@"(?<=birth_date\s+= c\. )\d+", "yyyy"),
-
-                // birth_date  = {{OldStyleDate|12 December|1884
             };
 
             DeathDateParsers = new DateParser[]

@@ -46,7 +46,7 @@ namespace DeathClock
             try
             {
                 var personTitles = new List<string>();
-                Regex personRegex = new Regex(@"(?<=\*\s*\[\[)[^\[\]\|]+");
+                Regex personRegex = new Regex(@"(?<=\*\s*\w*\s*\[\[)[^\[\]\|]+");
 
                 var matches = personRegex.Matches(jsonContent);
                 foreach (Match match in matches)

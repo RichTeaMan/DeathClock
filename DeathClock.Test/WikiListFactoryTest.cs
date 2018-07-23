@@ -292,5 +292,25 @@ namespace DeathClock.Test
             CollectionAssert.AreEquivalent(expectedPersonList, wikiList.PersonTitles.ToArray());
         }
 
+        [TestMethod]
+        public void CheckPersonList2()
+        {
+            string content = File.ReadAllText("WikiJson/ListOfEnglishPeople.json");
+
+            var wikiList = wikiListFactory.CreateFromContent(content);
+
+            var expectedPersonList = new List<string>();
+            string expectedTitle = "List of English people";
+
+            #region expected
+
+            expectedPersonList.Add("Michael_Caine");
+
+            #endregion
+
+            Assert.AreEqual(expectedTitle, wikiList.Title);
+            CollectionAssert.IsSubsetOf(expectedPersonList, wikiList.PersonTitles.ToArray());
+        }
+
     }
 }

@@ -74,5 +74,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedBirthDate, person?.BirthDate);
         }
+
+        [TestMethod]
+        public void CheckBirthDate6()
+        {
+            string content = File.ReadAllText("WikiJson/MichaelCaine.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedBirthDate = new DateTime(1933, 03, 14);
+
+            Assert.AreEqual(expectedBirthDate, person?.BirthDate);
+        }
     }
 }
