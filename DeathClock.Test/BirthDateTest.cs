@@ -62,5 +62,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedBirthDate, person?.BirthDate);
         }
+
+        [TestMethod]
+        public void CheckBirthDate5()
+        {
+            string content = File.ReadAllText("WikiJson/ZinaidaSerebriakova.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedBirthDate = new DateTime(1884, 12, 12);
+
+            Assert.AreEqual(expectedBirthDate, person?.BirthDate);
+        }
     }
 }
