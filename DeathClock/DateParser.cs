@@ -49,6 +49,10 @@ namespace DeathClock
             match = match.Replace("Oct ", "October ");
             match = match.Replace("Nov ", "November ");
             match = match.Replace("Dec ", "December ");
+            match = match.Replace("1st", "1");
+            match = match.Replace("nd", string.Empty);
+            match = match.Replace("rd", string.Empty);
+            match = match.Replace("th", string.Empty);
             return match;
         }
     }

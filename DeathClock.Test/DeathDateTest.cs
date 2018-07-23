@@ -290,5 +290,29 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate24()
+        {
+            string content = File.ReadAllText("WikiJson/PremendraMitra.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1988, 05, 02);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
+
+        [TestMethod]
+        public void CheckDeathDate25()
+        {
+            string content = File.ReadAllText("WikiJson/MikeMilligan.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1978, 05, 08);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

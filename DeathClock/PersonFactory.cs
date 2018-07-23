@@ -52,10 +52,10 @@ namespace DeathClock
                 new DateParser(@"(?<=death_date(\s+|)={{D\-da\|)[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy"),
                 new DateParser(@"(?<=Date of death\|)[^\]]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death-date and age\|(df=yes\|)?)[^\|\]]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<{]+", "d MMMM yyyy"),
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<{\\]+", "d MMMM yyyy", "MMMM d yyyy"),
                 new DateParser(@"(?<=death_date =\\n)[^\\\|<{]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<]+", "MMMM d yyyy"),
+                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\\]+", "MMMM d yyyy"),
                 new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
                 new DateParser(@"(?<= died )[^\)]+", "d MMMM yyyy"),
                 new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
@@ -76,7 +76,6 @@ namespace DeathClock
                 new DateParser(@"(?<=death_date = \w+ or )\w+, \d+", "MMMM yyyy"),
                 new DateParser(@"(?i)(?<=Disappeared date\s+and age\|(|mf=yes\|))\d+\|\d+\|\d+", "yyyy|M|d", "yyyy|MM|dd"),
             };
-            // death_date ={{D-da|January 1, 1980|
             var descriptionRegexs = new[] {
                 @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
                 @"(?<=occupation[ =]*\[\[)[^\]<]+",
