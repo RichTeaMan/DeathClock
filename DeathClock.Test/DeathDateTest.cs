@@ -278,5 +278,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate23()
+        {
+            string content = File.ReadAllText("WikiJson/AnneValliantBurnettTandy.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1980, 01, 01);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }

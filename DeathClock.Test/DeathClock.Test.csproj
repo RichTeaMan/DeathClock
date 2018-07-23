@@ -71,6 +71,9 @@
     <None Update="WikiJson\ElizabethII.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="WikiJson\AnneValliantBurnettTandy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="WikiJson\ZygmuntGorgolewski.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
