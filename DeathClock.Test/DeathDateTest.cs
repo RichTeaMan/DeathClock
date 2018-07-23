@@ -266,5 +266,17 @@ namespace DeathClock.Test
 
             Assert.AreEqual(expectedDeathDate, person.DeathDate);
         }
+
+        [TestMethod]
+        public void CheckDeathDate22()
+        {
+            string content = File.ReadAllText("WikiJson/GlennMiller.json");
+
+            var person = personFactory.CreateFromContent(content);
+
+            var expectedDeathDate = new DateTime(1944, 12, 15);
+
+            Assert.AreEqual(expectedDeathDate, person.DeathDate);
+        }
     }
 }
