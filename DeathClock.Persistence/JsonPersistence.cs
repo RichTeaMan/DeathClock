@@ -10,17 +10,17 @@ namespace DeathClock.Persistence
 {
     public class JsonPersistence
     {
-        public async Task SavePersonsAsync(IEnumerable<Person> persons, string jsonFileLocation)
+        public async Task SaveDeathClockDataAsync(DeathClockData deathClockData, string jsonFileLocation)
         {
-            string json = JsonConvert.SerializeObject(persons.ToArray());
+            string json = JsonConvert.SerializeObject(deathClockData);
             await File.WriteAllTextAsync(jsonFileLocation, json);
         }
 
-        public async Task<IEnumerable<Person>> LoadPersonsAsync(string jsonFileLocation)
+        public async Task<DeathClockData> LoadDeathClockDataAsync(string jsonFileLocation)
         {
             string json = await File.ReadAllTextAsync(jsonFileLocation);
-            var persons = JsonConvert.DeserializeObject<Person[]>(json);
-            return persons;
+            var deathClockData = JsonConvert.DeserializeObject<DeathClockData>(json);
+            return deathClockData;
         }
     }
 }

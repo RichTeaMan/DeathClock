@@ -144,7 +144,7 @@ namespace DeathClock
 
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
-            await jsonPersistence.SavePersonsAsync(people.Select(p => personMapper.Map(p)), Path.Combine(OutputDirectory, "people.json"));
+            await jsonPersistence.SaveDeathClockDataAsync(personMapper.MapToDeathClockData(people), Path.Combine(OutputDirectory, "deathClockData.json"));
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());

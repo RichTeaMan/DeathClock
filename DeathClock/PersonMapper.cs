@@ -1,5 +1,7 @@
-﻿using System;
+﻿using DeathClock.Persistence;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using PersistencePerson = DeathClock.Persistence.Person;
@@ -25,6 +27,16 @@ namespace DeathClock
             };
 
             return persistencePerson;
+        }
+
+        public DeathClockData MapToDeathClockData(IEnumerable<Person> people)
+        {
+            var personArray = people.Select(p => Map(p)).ToArray();
+            DeathClockData deathClockData = new DeathClockData
+            {
+                PersonList = personArray
+            };
+            return deathClockData;
         }
     }
 }
