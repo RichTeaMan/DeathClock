@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model DeathClock.Persistence.DeathClockData
+
+
+<div class="row">
+    <div class="col-md">
+        <table class="table">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Birth Date</th>
+                <th scope="col">Age</th>
+            </tr>
+            @foreach (var person in Model.PersonList)
+            {
+                <tr>
+                    <td><a href="@person.Url">@person.Title</a></td>
+                    <td>@person.Description</td>
+                    <td>@person.BirthDate</td>
+                    <td>@person.Age</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>

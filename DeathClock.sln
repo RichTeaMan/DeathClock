@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCache.Tests", "WebCache\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathClock.Persistence", "DeathClock.Persistence\DeathClock.Persistence.csproj", "{F191809A-30CB-4ED1-9350-913565327257}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathClock.Web.UI", "DeathClock.Web.UI\DeathClock.Web.UI.csproj", "{2263CE51-A43A-45E7-9612-5F6DB352C7AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -115,6 +117,22 @@ Global
 		{F191809A-30CB-4ED1-9350-913565327257}.Release|x64.Build.0 = Release|Any CPU
 		{F191809A-30CB-4ED1-9350-913565327257}.Release|x86.ActiveCfg = Release|Any CPU
 		{F191809A-30CB-4ED1-9350-913565327257}.Release|x86.Build.0 = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|x64.Build.0 = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Debug|x86.Build.0 = Debug|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|ARM.Build.0 = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|x64.ActiveCfg = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|x64.Build.0 = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{2263CE51-A43A-45E7-9612-5F6DB352C7AA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
