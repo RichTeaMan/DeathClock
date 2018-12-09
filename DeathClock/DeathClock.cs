@@ -1,14 +1,14 @@
-﻿using System;
+﻿using DeathClock.Persistence;
+using Microsoft.Extensions.Logging;
+using RichTea.WebCache;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.Extensions.Logging;
-using RichTea.WebCache;
+using System.Threading.Tasks;
 
 namespace DeathClock
 {
@@ -37,17 +37,23 @@ namespace DeathClock
         /// </summary>
         private readonly WebCache webCache;
 
+        private readonly JsonPersistence jsonPersistence;
+
+        private readonly PersonMapper personMapper;
+
         /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache)
+        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache, JsonPersistence jsonPersistence, PersonMapper personMapper)
         {
             this.logger = logger;
             this.personFactory = personFactory;
             this.wikiListFactory = wikiListFactory;
             this.webCache = webCache;
+            this.jsonPersistence = jsonPersistence;
+            this.personMapper = personMapper;
         }
 
         public async Task Start(string[] listArticles)
@@ -129,7 +135,7 @@ namespace DeathClock
                     int _c = Interlocked.Increment(ref count);
                     if (_c % 100 == 0)
                     {
-                        var message = $"{_c} of {totals} complete. {errors} errors. {invalids} invalid articles.";
+                        var message = $"{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. Download speed {webCache.DownloadSpeed} kB/s.";
                         Console.WriteLine(message);
                     }
 
@@ -138,6 +144,7 @@ namespace DeathClock
 
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
+            await jsonPersistence.SavePersonsAsync(people.Select(p => personMapper.Map(p)), Path.Combine(OutputDirectory, "people.json"));
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());

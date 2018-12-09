@@ -1,20 +1,21 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DeathClock.Persistence;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RichTea.CommandLineParser;
 using RichTea.WebCache;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace DeathClock
 {
-    class Program
+    internal class Program
     {
         private static IContainer Container { get; set; }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             MethodInvoker command = null;
             try
@@ -89,6 +90,8 @@ namespace DeathClock
             containerBuilder.RegisterType<PersonFactory>().As<PersonFactory>();
             containerBuilder.RegisterType<WikiListFactory>().As<WikiListFactory>();
             containerBuilder.RegisterType<WikiUtility>().As<WikiUtility>();
+            containerBuilder.RegisterType<JsonPersistence>().As<JsonPersistence>();
+            containerBuilder.RegisterType<PersonMapper>().As<PersonMapper>();
 
             WebCache webCache;
             if (string.IsNullOrEmpty(cacheDirectory))

@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DeathClock.Persistence\DeathClock.Persistence.csproj" />
     <ProjectReference Include="..\WebCache\WebCache\WebCache.csproj" />
   </ItemGroup>
 
