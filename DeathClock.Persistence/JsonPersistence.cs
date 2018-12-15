@@ -12,7 +12,7 @@ namespace DeathClock.Persistence
     {
         public async Task SaveDeathClockDataAsync(DeathClockData deathClockData, string jsonFileLocation)
         {
-            string json = JsonConvert.SerializeObject(deathClockData);
+            string json = JsonConvert.SerializeObject(deathClockData, Formatting.Indented);
             await File.WriteAllTextAsync(jsonFileLocation, json);
         }
 

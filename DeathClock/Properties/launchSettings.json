@@ -2,7 +2,7 @@
   "profiles": {
     "DeathClock": {
       "commandName": "Project",
-      "commandLineArgs": "-list Lists_of_Americans"
+      "commandLineArgs": "tmdb"
     }
   }
 }

@@ -27,5 +27,7 @@ namespace DeathClock.Persistence
         public bool IsStub { get; set; }
 
         public string Url { get; set; }
+
+        public string KnownFor { get; set; }
     }
 }

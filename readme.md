@@ -9,6 +9,16 @@ This project uses [Cake](https://cakebuild.net).
 * cake -target=Test
 * cake -target=Run
 
+## Api Keys
+
+This project requires an api key from [The Movie DB](https://www.themoviedb.org/?language=en-US).
+
+Then add it to the secrets of the project with the dotnet CLI from the DeathClock project directory:
+
+```
+dotnet user-secrets set TmdbApiKey <api key>
+```
+
 ## CI
 
 |        | Windows | Linux |

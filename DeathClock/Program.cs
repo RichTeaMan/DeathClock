@@ -1,12 +1,14 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DeathClock.Persistence;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RichTea.CommandLineParser;
 using RichTea.WebCache;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DeathClock
@@ -48,6 +50,36 @@ namespace DeathClock
 
                     Console.WriteLine(ex.StackTrace);
                 }
+            }
+        }
+
+        [ClCommand("tmdb")]
+        public static async Task RunDeathDeathclockTmdbData(
+            [ClArgs("outputDirectory", "od")]string outputDirectory = "Results",
+            [ClArgs("cacheDirectory", "cd")]string cacheDirectory = null)
+        {
+            Console.WriteLine("Beginning the Deathclock.");
+
+            var config = new ConfigurationBuilder()
+                .AddUserSecrets("9b9374a9-4a72-4657-a398-2e265456aaf2")
+                .Build();
+
+            var key = config.GetValue<string>("TmdbApiKey");
+
+
+            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+
+                Console.WriteLine($"Results will be written to '{outputDirectory}'.");
+
+                var jsonPersistence = Container.Resolve<JsonPersistence>();
+
+                var tmdbFactory = new Tmdb.TmdbFactory(key);
+                var persons = await tmdbFactory.GetMoviePersonList();
+                await jsonPersistence.SaveDeathClockDataAsync(new DeathClockData { PersonList = persons.ToArray(), CreatedOn = DateTimeOffset.Now, Name = "TMDB" }, Path.Combine(outputDirectory, "tmdbDeathClockData.json"));
+
+                Console.WriteLine("The Deathclock has finished.");
             }
         }
 
