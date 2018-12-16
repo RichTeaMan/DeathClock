@@ -1,9 +1,24 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-@model DeathClock.Persistence.DeathClockData
+@model ResultListModel
 
+<div class="row">
+    <div class="col-md">
+        <div class="dropdown show">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Datasets
+            </a>
 
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                @foreach (var datasetName in Model.DatasetNames)
+                {
+                <a class="dropdown-item" href="#">@datasetName</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md">
         <table class="table">
@@ -16,22 +31,22 @@
             </tr>
             @foreach (var person in Model.PersonList)
             {
-            <tr>
-                <td>
-                    @if (person.Url != null)
-                    {
-                        <a href="@person.Url">@person.Title</a>
-                    }
-                    else
-                    {
-                        @person.Title
-                    }
-                </td>
-                <td>@person.Description</td>
-                <td>@person.KnownFor</td>
-                <td>@person.BirthDate</td>
-                <td>@person.Age</td>
-            </tr>
+                <tr>
+                    <td>
+                        @if (person.Url != null)
+                        {
+                            <a href="@person.Url">@person.Title</a>
+                        }
+                        else
+                        {
+                            @person.Title
+                        }
+                    </td>
+                    <td>@person.Description</td>
+                    <td>@person.KnownFor</td>
+                    <td>@person.BirthDate?.ToShortDateString()</td>
+                    <td>@person.Age</td>
+                </tr>
             }
         </table>
     </div>

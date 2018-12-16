@@ -17,7 +17,7 @@
     },
     "DeathClock.Web.UI": {
       "commandName": "Project",
-      "commandLineArgs": "--DeathClockData D:/Projects/DeathClock/Results/tmdbDeathClockData.json",
+      "commandLineArgs": "--DeathClockData D:/Projects/DeathClock/Results/tmdbDeathClockData.json,D:/Projects/DeathClock/Results/deathClockData.json",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

@@ -19,7 +19,12 @@ namespace DeathClock.Web.UI.Controllers
 
         public IActionResult Index()
         {
-            return View(dataContext.MostRisk());
+            var model = new ResultListModel
+            {
+                DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
+                PersonList = dataContext.DeathClockDataSet[0].MostRisk()
+            };
+            return View(model);
         }
 
         public IActionResult About()

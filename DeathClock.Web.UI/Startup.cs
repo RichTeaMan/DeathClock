@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DeathClock.Persistence;
+﻿using DeathClock.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DeathClock.Web.UI
 {
@@ -59,17 +58,26 @@ namespace DeathClock.Web.UI
             });
 
 
-            var dataPath = Configuration.GetValue<string>("DeathClockData");
+            var dataPathList = Configuration.GetValue<string>("DeathClockData")?.Split(",");
             var persistence = app.ApplicationServices.GetService<JsonPersistence>();
             var dataContext = app.ApplicationServices.GetService<DataContext>();
 
-            if (string.IsNullOrEmpty(dataPath))
+            if (dataPathList != null && !dataPathList.Any())
             {
                 throw new ArgumentException("A DeathClockData must be supplied.");
             }
+            else
+            {
+                List<DeathClockData> deathClockDatas = new List<DeathClockData>();
+                foreach (var path in dataPathList)
+                {
+                    var data = await persistence.LoadDeathClockDataAsync(path);
+                    deathClockDatas.Add(data);
 
-            var data = await persistence.LoadDeathClockDataAsync(dataPath);
-            dataContext.DeathClockData = data;
+                }
+                dataContext.DeathClockDataSet = deathClockDatas.ToArray();
+            }
+
         }
     }
 }
