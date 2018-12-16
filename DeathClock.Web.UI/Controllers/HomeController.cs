@@ -27,6 +27,7 @@ namespace DeathClock.Web.UI.Controllers
             var model = new ResultListModel
             {
                 DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
+                DatasetName = dataset.Name,
                 PersonList = dataset.MostRisk()
             };
             return View(model);
