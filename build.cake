@@ -11,6 +11,8 @@ var configuration = Argument("configuration", "Release");
 var outputDirectory = Argument("outputDirectory", string.Empty);
 var cacheDirectory = Argument("cacheDirectory", string.Empty);
 
+var deathClockData = Argument("deathClockData", string.Empty);
+
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
 //////////////////////////////////////////////////////////////////////
@@ -42,6 +44,12 @@ Task("Build")
     Verbosity = DotNetCoreVerbosity.Minimal,
     Configuration = configuration
     });
+
+    var publishSettings = new DotNetCorePublishSettings
+    {
+        Configuration = configuration
+    };
+    DotNetCorePublish("./DeathClock.Web.UI/DeathClock.Web.UI.csproj", publishSettings);
 });
 
 Task("Test")
@@ -95,6 +103,23 @@ Task("Run-Tmdb")
     var command = "tmdb";
     
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
+});
+
+Task("Web-UI")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    var publishDirectory = $"./DeathClock.Web.UI/bin/{buildDir}/netcoreapp2.1/publish";
+    var executeSettings = new DotNetCoreExecuteSettings
+    {
+        WorkingDirectory = publishDirectory
+    };
+
+    if (string.IsNullOrEmpty(deathClockData)) {
+        throw new Exception("deathClockData must have json paths.");
+    }
+
+    DotNetCoreExecute($"{publishDirectory}/DeathClock.Web.UI.dll", $"--DeathClockData {deathClockData}", executeSettings);
 });
 
 //////////////////////////////////////////////////////////////////////
