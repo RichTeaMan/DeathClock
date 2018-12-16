@@ -44,7 +44,7 @@ namespace DeathClock
 
         public bool IsStub
         {
-            get { return WordCount < 1000; }
+            get { return WordCount < 2000; }
         }
 
         public string Url

@@ -144,7 +144,15 @@ namespace DeathClock
 
             Console.WriteLine($"{people.Count} people found.");
             WriteReports(people.ToList());
-            await jsonPersistence.SaveDeathClockDataAsync(personMapper.MapToDeathClockData(people), Path.Combine(OutputDirectory, "deathClockData.json"));
+
+            var wikiData = personMapper.MapToDeathClockData(people.Where(p => !p.IsStub));
+            wikiData.Name = "Wikipedia";
+
+            var wikiStubData = personMapper.MapToDeathClockData(people.Where(p => p.IsStub));
+            wikiStubData.Name = "Wikipedia Stubs";
+
+            await jsonPersistence.SaveDeathClockDataAsync(wikiData, Path.Combine(OutputDirectory, "WikiDeathClockData.json"));
+            await jsonPersistence.SaveDeathClockDataAsync(wikiStubData, Path.Combine(OutputDirectory, "WikiStubDeathClockData.json"));
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());

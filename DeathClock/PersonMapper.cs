@@ -34,7 +34,6 @@ namespace DeathClock
             var personArray = people.Select(p => Map(p)).ToArray();
             DeathClockData deathClockData = new DeathClockData
             {
-                Name = "Wikipedia,",
                 PersonList = personArray,
                 CreatedOn = DateTimeOffset.Now
             };
