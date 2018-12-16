@@ -13,7 +13,9 @@
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                 @foreach (var datasetName in Model.DatasetNames)
                 {
-                <a class="dropdown-item" href="#">@datasetName</a>
+                    <a class="dropdown-item"
+                       asp-controller="Home"
+                       asp-action="Index" asp-route-datasetName="@datasetName">@datasetName</a>
                 }
             </div>
         </div>
@@ -44,7 +46,7 @@
                     </td>
                     <td>@person.Description</td>
                     <td>@person.KnownFor</td>
-                    <td>@person.BirthDate?.ToShortDateString()</td>
+                    <td>@person.BirthDate.ToShortDateString()</td>
                     <td>@person.Age</td>
                 </tr>
             }

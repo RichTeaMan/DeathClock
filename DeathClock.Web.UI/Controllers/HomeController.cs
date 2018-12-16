@@ -17,12 +17,17 @@ namespace DeathClock.Web.UI.Controllers
             this.dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string datasetName)
         {
+            var dataset = dataContext.DeathClockDataSet.FirstOrDefault(d => d.Name == datasetName);
+            if (dataset == null)
+            {
+                dataset = dataContext.DeathClockDataSet.First();
+            }
             var model = new ResultListModel
             {
                 DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
-                PersonList = dataContext.DeathClockDataSet[0].MostRisk()
+                PersonList = dataset.MostRisk()
             };
             return View(model);
         }
