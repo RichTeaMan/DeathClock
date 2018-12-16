@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DeathClock.Web.UI
 {
@@ -36,7 +37,7 @@ namespace DeathClock.Web.UI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -57,12 +58,11 @@ namespace DeathClock.Web.UI
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-
-            var dataPathList = Configuration.GetValue<string>("DeathClockData")?.Split(",");
+            var dataPathList = Configuration.GetValue<string>("DeathClockData")?.Split(",").Where(p => !string.IsNullOrEmpty(p)).ToArray();
             var persistence = app.ApplicationServices.GetService<JsonPersistence>();
             var dataContext = app.ApplicationServices.GetService<DataContext>();
 
-            if (dataPathList != null && !dataPathList.Any())
+            if (dataPathList?.Any() != true)
             {
                 throw new ArgumentException("A DeathClockData must be supplied.");
             }
@@ -71,13 +71,13 @@ namespace DeathClock.Web.UI
                 List<DeathClockData> deathClockDatas = new List<DeathClockData>();
                 foreach (var path in dataPathList)
                 {
-                    var data = await persistence.LoadDeathClockDataAsync(path);
-                    deathClockDatas.Add(data);
+                    var t = persistence.LoadDeathClockDataAsync(path);
+                    t.Wait();
+                    deathClockDatas.Add(t.Result);
 
                 }
                 dataContext.DeathClockDataSet = deathClockDatas.ToArray();
             }
-
         }
     }
 }
