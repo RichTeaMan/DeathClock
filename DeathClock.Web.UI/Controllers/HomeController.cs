@@ -18,7 +18,7 @@ namespace DeathClock.Web.UI.Controllers
             this.dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
         }
 
-        public IActionResult Index(string datasetName, int? deathYear)
+        public IActionResult Index(string datasetName, int? deathYear, int page = 1)
         {
             var dataset = dataContext.DeathClockDataSet.FirstOrDefault(d => d.Name == datasetName);
             if (dataset == null)
@@ -34,12 +34,19 @@ namespace DeathClock.Web.UI.Controllers
             {
                 personList = dataset.MostRisk();
             }
+
+            Person[] pagedPersonList = personList.Skip((page - 1) * Constants.ItemsPerPage)
+                .Take(Constants.ItemsPerPage)
+                .ToArray();
+
             var model = new ResultListModel
             {
                 DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
                 DatasetName = dataset.Name,
-                PersonList = personList,
-                DeathYear = deathYear
+                PersonList = pagedPersonList,
+                DeathYear = deathYear,
+                Page = page,
+                TotalPages = (personList.Count() / Constants.ItemsPerPage) + 1
             };
             return View(model);
         }

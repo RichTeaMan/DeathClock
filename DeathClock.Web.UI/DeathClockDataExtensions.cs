@@ -13,7 +13,6 @@ namespace DeathClock.Web.UI
             var orderedPersons = deathClockData.PersonList
                 .Where(p => !p.IsDead)
                 .OrderByDescending(p => p.Age)
-                .Take(100)
                 .ToArray();
             return orderedPersons;
         }
