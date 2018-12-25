@@ -23,6 +23,21 @@
 </div>
 <div class="row">
     <div class="col-md">
+        @foreach (int year in Enumerable.Range(1990, 29))
+        {
+            <a asp-controller="Home"
+               asp-action="Index"
+               asp-route-deathYear="@year"
+               asp-route-datasetName="@Model.DatasetName">@year</a>
+            @Html.Raw("&nbsp");
+        }
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-route-datasetName="@Model.DatasetName">The Living</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md">
         <p>Showing top @Model.PersonList.Count() people from @Model.DatasetName.</p>
     </div>
 </div>

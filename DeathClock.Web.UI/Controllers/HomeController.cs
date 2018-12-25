@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DeathClock.Web.UI.Models;
+using DeathClock.Persistence;
 
 namespace DeathClock.Web.UI.Controllers
 {
@@ -17,18 +18,28 @@ namespace DeathClock.Web.UI.Controllers
             this.dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
         }
 
-        public IActionResult Index(string datasetName)
+        public IActionResult Index(string datasetName, int? deathYear)
         {
             var dataset = dataContext.DeathClockDataSet.FirstOrDefault(d => d.Name == datasetName);
             if (dataset == null)
             {
                 dataset = dataContext.DeathClockDataSet.First();
             }
+            Person[] personList;
+            if (deathYear.HasValue)
+            {
+                personList = dataset.ByDeathYear(deathYear.Value);
+            }
+            else
+            {
+                personList = dataset.MostRisk();
+            }
             var model = new ResultListModel
             {
                 DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
                 DatasetName = dataset.Name,
-                PersonList = dataset.MostRisk()
+                PersonList = personList,
+                DeathYear = deathYear
             };
             return View(model);
         }

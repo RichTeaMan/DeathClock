@@ -11,9 +11,18 @@ namespace DeathClock.Web.UI
         public static Person[] MostRisk(this DeathClockData deathClockData)
         {
             var orderedPersons = deathClockData.PersonList
-                .Where(p => !p.IsDead && !p.IsStub)
+                .Where(p => !p.IsDead)
                 .OrderByDescending(p => p.Age)
                 .Take(100)
+                .ToArray();
+            return orderedPersons;
+        }
+
+        public static Person[] ByDeathYear(this DeathClockData deathClockData, int deathYear)
+        {
+            var orderedPersons = deathClockData.PersonList
+                .Where(p => p.DeathDate?.Year == deathYear)
+                .OrderBy(p => p.DeathDate)
                 .ToArray();
             return orderedPersons;
         }
