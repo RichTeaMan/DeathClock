@@ -105,6 +105,11 @@ Task("Run-Tmdb")
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });
 
+Task("Run-All")
+    .IsDependentOn("Run")
+    .IsDependentOn("Run-Tmdb")
+    .Does(() => { });
+
 Task("Web-UI")
     .IsDependentOn("Build")
     .Does(() =>
