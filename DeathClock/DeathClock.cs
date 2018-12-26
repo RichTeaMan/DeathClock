@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -143,7 +142,6 @@ namespace DeathClock
             }
 
             Console.WriteLine($"{people.Count} people found.");
-            WriteReports(people.ToList());
 
             var wikiData = personMapper.MapToDeathClockData(people.Where(p => !p.IsStub));
             wikiData.Name = "Wikipedia";
@@ -179,58 +177,5 @@ namespace DeathClock
 
             return results.Distinct().OrderBy(p => p).ToList();
         }
-
-        private void WriteReports(List<Person> persons)
-        {
-            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living Stubs", Path.Combine(OutputDirectory, "TheLivingStubs.html"));
-            WriteReport(persons.Where(p => p.IsDead == false && p.IsStub == false).OrderByDescending(p => p.Age).ThenByDescending(p => p.DeathWordCount), "The Living", Path.Combine(OutputDirectory, "TheLiving.html"));
-            for (int i = 1990; i <= DateTime.Now.Year; i++)
-            {
-                string title = $"{i} Deaths";
-                WriteReport(persons.Where(p => p.DeathDate != null && p.DeathDate.Value.Year == i).OrderBy(p => p.Name), title, Path.Combine(OutputDirectory, title.Replace(" ", "") + ".html"));
-            }
-        }
-
-        private void WriteReport(IEnumerable<Person> persons, string title, string path)
-        {
-            var table = new HtmlTable();
-            table.SetHeaders("Name", "Birth Date", "Death Date", "Age", "Description", "Word Count", "Death Word Count");
-
-            foreach (var person in persons)
-            {
-                string name = $"<a href=\"{person.Url}\" target=\"_blank\" >{person.Title}</a>";
-                string json = $"(<a href=\"{person.JsonUrl}\" target=\"_blank\" >Json</a>)";
-                table.AddRow(
-                    name + " " + json, person.BirthDate.ToShortDateString(),
-                    person.DeathDate != null ? person.DeathDate.Value.ToShortDateString() : " - ",
-                    person.Age,
-                    person.Description,
-                    person.WordCount,
-                    person.DeathWordCount);
-            }
-
-            var sb = new StringBuilder();
-
-            sb.AppendLine("<html>");
-            sb.AppendLine("<head>");
-            sb.AppendLine($"<title>{title}</title>");
-            sb.AppendLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">");
-            sb.AppendLine("</head>");
-            sb.AppendLine("<body>");
-            sb.AppendLine($"<h1>{title}</h1>");
-            sb.AppendLine($"<h3>List generated at {DateTime.Now}.</h3>");
-            sb.AppendLine($"<p>Showing {persons.Count()} people.</p>");
-            if (persons.Count() > 0)
-            {
-                sb.AppendLine($"<p>Average age is {persons.Average(p => p.Age)}.");
-            }
-            sb.Append(table.GetHtml());
-
-            sb.AppendLine("</body>");
-            sb.AppendLine("</html>");
-
-            File.WriteAllText(path, sb.ToString());
-        }
-
     }
 }

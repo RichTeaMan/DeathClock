@@ -152,13 +152,12 @@ namespace DeathClock.Tmdb
                 BirthDate = birthday,
                 DeathDate = personDetail.deathday,
                 DeathWordCount = 0,
-                Description = personDetail.known_for_department,
                 IsDead = personDetail.deathday != null,
                 IsStub = false,
                 Title = personDetail.name,
                 Url = url,
                 WordCount = 0,
-                KnownFor = knownFor
+                KnownFor = $"{personDetail.known_for_department}; {knownFor}"
             };
 
             return person;

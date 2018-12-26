@@ -40,7 +40,7 @@ namespace DeathClock
 
         public int WordCount { get; private set; }
 
-        public string Description { get; private set; }
+        public string KnownFor { get; private set; }
 
         public bool IsStub
         {
@@ -63,7 +63,7 @@ namespace DeathClock
             }
         }
 
-        public Person(string name, DateTime birthDate, DateTime? deathDate, int deathWordCount, string title, int wordCount, string description)
+        public Person(string name, DateTime birthDate, DateTime? deathDate, int deathWordCount, string title, int wordCount, string knownFor)
         {
             Name = name;
             BirthDate = birthDate;
@@ -71,7 +71,7 @@ namespace DeathClock
             DeathWordCount = deathWordCount;
             Title = title;
             WordCount = wordCount;
-            Description = description;
+            KnownFor = knownFor;
         }
 
         public override string ToString()

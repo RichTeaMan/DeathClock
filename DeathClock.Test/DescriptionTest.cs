@@ -24,7 +24,7 @@ namespace DeathClock.Test
 
             var expectedDescription = "Poet";
 
-            Assert.AreEqual(expectedDescription, person.Description);
+            Assert.AreEqual(expectedDescription, person.KnownFor);
         }
 
         [TestMethod]
@@ -36,7 +36,7 @@ namespace DeathClock.Test
 
             var expectedDescription = "Queen of the United Kingdom and the other Commonwealth realms";
 
-            Assert.AreEqual(expectedDescription, person.Description);
+            Assert.AreEqual(expectedDescription, person.KnownFor);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace DeathClock.Test
 
             var expectedDescription = "Musician";
 
-            Assert.AreEqual(expectedDescription, person.Description);
+            Assert.AreEqual(expectedDescription, person.KnownFor);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace DeathClock.Test
 
             var expectedDescription = "Racing driver";
 
-            Assert.AreEqual(expectedDescription, person.Description);
+            Assert.AreEqual(expectedDescription, person.KnownFor);
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace DeathClock.Test
 
             var expectedDescription = "Pope of the Coptic Orthodox Church of Alexandria";
 
-            Assert.AreEqual(expectedDescription, person.Description);
+            Assert.AreEqual(expectedDescription, person.KnownFor);
         }
     }
 }

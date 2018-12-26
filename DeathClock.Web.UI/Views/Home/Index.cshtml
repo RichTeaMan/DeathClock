@@ -46,9 +46,8 @@
         <table class="table">
             <tr>
                 <th scope="col">Title</th>
-                <th scope="col">Description</th>
                 <th scope="col">Known For</th>
-                <th scope="col">Birth Date</th>
+                <th class="d-none d-sm-table-cell" scope="col">Birth Date</th>
                 <th scope="col">Age</th>
             </tr>
             @foreach (var person in Model.PersonList)
@@ -64,9 +63,8 @@
                             @person.Title
                         }
                     </td>
-                    <td>@person.Description</td>
                     <td>@person.KnownFor</td>
-                    <td>@person.BirthDate.ToString("dd/MM/yyyy")</td>
+                    <td class="d-none d-sm-table-cell">@person.BirthDate.ToString("dd/MM/yyyy")</td>
                     <td>@person.Age</td>
                 </tr>
             }

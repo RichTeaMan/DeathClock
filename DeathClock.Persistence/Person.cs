@@ -22,8 +22,6 @@ namespace DeathClock.Persistence
 
         public int WordCount { get; set; }
 
-        public string Description { get; set; }
-
         public bool IsStub { get; set; }
 
         public string Url { get; set; }

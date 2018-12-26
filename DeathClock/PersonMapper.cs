@@ -18,7 +18,6 @@ namespace DeathClock
                 BirthDate = person.BirthDate,
                 DeathDate = person.DeathDate,
                 DeathWordCount = person.DeathWordCount,
-                Description = person.Description,
                 IsDead = person.IsDead,
                 IsStub = person.IsStub,
                 Title = person.Title,
