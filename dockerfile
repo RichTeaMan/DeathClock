@@ -8,5 +8,5 @@ ARG CACHEBUST=1
 RUN git clone --single-branch --recurse-submodules -b $branch https://github.com/RichTeaMan/DeathClock.git
 WORKDIR /DeathClock
 RUN ./cake.sh -target=Test
-ENTRYPOINT ./cake.sh -target=Run-Tmdb -outputDirectory=/var/deathclock/ -cacheDirectory=/var/deathclockcache/
+ENTRYPOINT ["./cake.sh", "-target=Run-Tmdb", "-outputDirectory=/var/deathclock/", "-cacheDirectory=/var/deathclockcache/"]
 CMD []

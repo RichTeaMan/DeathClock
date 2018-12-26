@@ -103,9 +103,9 @@ Task("Run-Tmdb")
     .Does(() =>
 {
     var command = "tmdb";
-	if (!string.IsNullOrEmpty(tmdbApiKey)) {
-		command += $" -tmdbApiKey {tmdbApiKey}";
-	}
+    if (!string.IsNullOrEmpty(tmdbApiKey)) {
+        command += $" -tmdbApiKey {tmdbApiKey}";
+    }
     
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });
