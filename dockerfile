@@ -4,9 +4,8 @@ ARG branch=master
 
 RUN apt-get update
 RUN apt-get install -y unzip libunwind8 gettext
-ARG CACHEBUST=1
-RUN git clone --single-branch --recurse-submodules -b $branch https://github.com/RichTeaMan/DeathClock.git
+ADD https://github.com/RichTeaMan/DeathClock/archive/$branch.tar.gz deathclock.tar.gz
+RUN tar -xzf deathclock.tar.gz --strip-components=1 -C DeathClock
 WORKDIR /DeathClock
-RUN ./cake.sh -target=Test
-ENTRYPOINT ["./cake.sh", "-target=Run-Tmdb", "-outputDirectory=/var/deathclock/", "-cacheDirectory=/var/deathclockcache/"]
+ENTRYPOINT ["./cake.sh", "-target=Run-All", "-outputDirectory=/var/deathclock/", "-cacheDirectory=/var/deathclockcache/"]
 CMD []
