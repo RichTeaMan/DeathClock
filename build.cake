@@ -13,6 +13,8 @@ var cacheDirectory = Argument("cacheDirectory", string.Empty);
 
 var deathClockData = Argument("deathClockData", string.Empty);
 
+var tmdbApiKey = Argument("tmdbApiKey", string.Empty);
+
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
 //////////////////////////////////////////////////////////////////////
@@ -101,6 +103,9 @@ Task("Run-Tmdb")
     .Does(() =>
 {
     var command = "tmdb";
+	if (!string.IsNullOrEmpty(tmdbApiKey)) {
+		command += $" -tmdbApiKey {tmdbApiKey}";
+	}
     
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });

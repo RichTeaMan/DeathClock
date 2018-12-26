@@ -56,7 +56,8 @@ namespace DeathClock
         [ClCommand("tmdb")]
         public static async Task RunDeathDeathclockTmdbData(
             [ClArgs("outputDirectory", "od")]string outputDirectory = "Results",
-            [ClArgs("cacheDirectory", "cd")]string cacheDirectory = null)
+            [ClArgs("cacheDirectory", "cd")]string cacheDirectory = null,
+            [ClArgs("tmdbApiKey")]string tmdbApiKey = null)
         {
             Console.WriteLine("Beginning the Deathclock.");
 
@@ -64,7 +65,15 @@ namespace DeathClock
                 .AddUserSecrets("9b9374a9-4a72-4657-a398-2e265456aaf2")
                 .Build();
 
-            var key = config.GetValue<string>("TmdbApiKey");
+            if (string.IsNullOrEmpty(tmdbApiKey))
+            {
+                tmdbApiKey = config.GetValue<string>("TmdbApiKey");
+                Console.WriteLine("Using TMDB API key from stored secrets.");
+            }
+            else
+            {
+                Console.WriteLine("Using TMDB API key from command line parameters.");
+            }
 
 
             using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
@@ -75,7 +84,7 @@ namespace DeathClock
 
                 var jsonPersistence = Container.Resolve<JsonPersistence>();
 
-                var tmdbFactory = new Tmdb.TmdbFactory(key);
+                var tmdbFactory = new Tmdb.TmdbFactory(tmdbApiKey);
                 var persons = await tmdbFactory.GetMoviePersonList();
                 await jsonPersistence.SaveDeathClockDataAsync(new DeathClockData { PersonList = persons.ToArray(), CreatedOn = DateTimeOffset.Now, Name = "TMDB" }, Path.Combine(outputDirectory, "tmdbDeathClockData.json"));
 

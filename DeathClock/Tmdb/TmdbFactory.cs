@@ -39,7 +39,6 @@ namespace DeathClock.Tmdb
 
                 while (page < pageLimit)
                 {
-                    Console.WriteLine($"Page {page}");
                     var searchResponseDocument = await webCache.GetWebPageAsync(string.Format(POPULAR_SEARCH_QUERY, apiKey, page));
                     var searchResponse = JsonConvert.DeserializeObject<PersonSearchResult>(searchResponseDocument.GetContents());
 
