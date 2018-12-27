@@ -106,6 +106,12 @@ Task("Run-Tmdb")
     if (!string.IsNullOrEmpty(tmdbApiKey)) {
         command += $" -tmdbApiKey {tmdbApiKey}";
     }
+    if (!string.IsNullOrEmpty(outputDirectory)) {
+        command += $"-outputDirectory {outputDirectory}";
+    }
+    if (!string.IsNullOrEmpty(cacheDirectory)) {
+        command += $" -cacheDirectory {cacheDirectory}";
+    }
     
     DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
 });
