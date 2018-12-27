@@ -107,7 +107,7 @@ Task("Run-Tmdb")
         command += $" -tmdbApiKey {tmdbApiKey}";
     }
     if (!string.IsNullOrEmpty(outputDirectory)) {
-        command += $"-outputDirectory {outputDirectory}";
+        command += $" -outputDirectory {outputDirectory}";
     }
     if (!string.IsNullOrEmpty(cacheDirectory)) {
         command += $" -cacheDirectory {cacheDirectory}";
