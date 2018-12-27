@@ -84,7 +84,7 @@ namespace DeathClock
 
                 var jsonPersistence = Container.Resolve<JsonPersistence>();
 
-                var tmdbFactory = new Tmdb.TmdbFactory(tmdbApiKey);
+                var tmdbFactory = new Tmdb.TmdbFactory(tmdbApiKey, cacheDirectory);
                 var persons = await tmdbFactory.GetMoviePersonList();
                 await jsonPersistence.SaveDeathClockDataAsync(new DeathClockData { PersonList = persons.ToArray(), CreatedOn = DateTimeOffset.Now, Name = "TMDB" }, Path.Combine(outputDirectory, "tmdbDeathClockData.json"));
 

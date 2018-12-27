@@ -19,12 +19,20 @@ namespace DeathClock.Tmdb
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
-        private readonly WebCache webCache = new WebCache("TMDB") { RateLimit = new RateLimit { Interval = 10, Requests = 40 } };
+        private readonly WebCache webCache;
         private readonly string apiKey;
 
-        public TmdbFactory(string apiKey)
+        public TmdbFactory(string apiKey, string cachePath)
         {
             this.apiKey = apiKey;
+            if (cachePath == null)
+            {
+                webCache = new WebCache("TMDB") { RateLimit = new RateLimit { Interval = 10, Requests = 40 } };
+            }
+            else
+            {
+                webCache = new WebCache("TMDB", cachePath) { RateLimit = new RateLimit { Interval = 10, Requests = 40 } };
+            }
         }
 
         public async Task<IEnumerable<Persistence.Person>> GetMoviePersonList()
@@ -126,9 +134,9 @@ namespace DeathClock.Tmdb
             string knownFor = "Nothing";
             if (personCredits.CombinedCredits.Cast?.Count() > 0)
             {
-                    var popular = personCredits.CombinedCredits.Cast
-                    .OrderByDescending(c => c.VoteCount)
-                    .First();
+                var popular = personCredits.CombinedCredits.Cast
+                .OrderByDescending(c => c.VoteCount)
+                .First();
                 if (popular.Name != null)
                     knownFor = popular.Name;
                 else if (popular.Title != null)
@@ -162,7 +170,7 @@ namespace DeathClock.Tmdb
             return person;
         }
 
-        class PersonCredits
+        private class PersonCredits
         {
             public PersonDetail PersonDetail { get; set; }
 
