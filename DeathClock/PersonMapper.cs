@@ -22,6 +22,7 @@ namespace DeathClock
                 IsStub = person.IsStub,
                 Title = person.Title,
                 Url = person.Url,
+                KnownFor = person.KnownFor,
                 WordCount = person.WordCount
             };
 
