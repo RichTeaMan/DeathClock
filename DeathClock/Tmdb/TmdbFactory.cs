@@ -20,7 +20,7 @@ namespace DeathClock.Tmdb
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
-        private const double POPULARITY_THRESHOLD = 5.0;
+        private const double POPULARITY_THRESHOLD = 2.0;
 
         private readonly ILogger<TmdbFactory> logger;
 
