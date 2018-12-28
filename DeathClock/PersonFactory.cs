@@ -13,8 +13,8 @@ namespace DeathClock
     {
         private WikiUtility wikiUtility;
 
-        public DateParser[] BirthDateParsers { get; private set; }
-        public DateParser[] DeathDateParsers { get; private set; }
+        public DateParser BirthDateParser { get; private set; }
+        public DateParser DeathDateParser { get; private set; }
         public Regex[] DescriptionRegexList { get; private set; }
 
         public string[] DeathWords { get; private set; } = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
@@ -26,57 +26,52 @@ namespace DeathClock
             this.wikiUtility = wikiUtility;
 
             errors = new ConcurrentStack<string>();
-            BirthDateParsers = new DateParser[]
-            {
-                new DateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|((d|m)f=y(es|)\||))\d+\|\d+\|\d+",
-                    "yyyy|M|d"),
-                new DateParser(@"(?i)(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?i)(?<=birthdate(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=birth_date\s+=\s+{{OldStyleDate\|)\d+ \w+\|\d+", "d MMMM|yyyy"),
-                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
-                new DateParser(@"(?<= born )[^\)]+", "d MMMM yyyy"),
-                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy"),
-                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+", "yyyy"),
-                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\d+", "yyyy"),
-                new DateParser(@"(?i)(?<={{birth-date\|)\d+", "yyyy"),
-                new DateParser(@"(?<=birth_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=birth_date\s+= c\. )\d+", "yyyy"),
-            };
+            BirthDateParser = new DateParser()
+                .AddDateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|((d|m)f=y(es|)\||))\d+\|\d+\|\d+",
+                    "yyyy|M|d")
+                .AddDateParser(@"(?i)(?<=birth date(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d")
+                .AddDateParser(@"(?i)(?<=birthdate(\s+|)\|)\d+\|\d+\|\d+", "yyyy|M|d")
+                .AddDateParser(@"(?<=birth_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy")
+                .AddDateParser(@"(?<=birth_date\s+=\s+{{OldStyleDate\|)\d+ \w+\|\d+", "d MMMM|yyyy")
+                .AddDateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy")
+                .AddDateParser(@"(?<= born )[^\)]+", "d MMMM yyyy")
+                .AddDateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy")
+                .AddDateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\d+", "yyyy")
+                .AddDateParser(@"(?<=birth_date(\s+|)=(\s+|))\d+", "yyyy")
+                .AddDateParser(@"(?i)(?<={{birth-date\|)\d+", "yyyy")
+                .AddDateParser(@"(?<=birth_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy")
+                .AddDateParser(@"(?<=DATE OF BIRTH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy")
+                .AddDateParser(@"(?<=birth_date\s+= c\. )\d+", "yyyy");
 
-            DeathDateParsers = new DateParser[]
-            {
-                new DateParser(@"(?i)(?<=death( |_)date(| and age)\s*\|((d|m)f=y(es|)\||)\s*)\d+\|\d+\|\d+",
-                    "yyyy|M|d"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)={{D\-da\|)[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=Date of death\|)[^\]]+", "d MMMM yyyy"),
-                new DateParser(@"(?<=death-date and age\|(df=yes\|)?)[^\|\]]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<{\\]+", "d MMMM yyyy", "MMMM d yyyy"),
-                new DateParser(@"(?<=death_date =\\n)[^\\\|<{]+", "d MMMM yyyy"),
-                new DateParser(@"(?<=death date\|)\d+\|\d+\|\d+", "yyyy|M|d"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\\]+", "MMMM d yyyy"),
-                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy"),
-                new DateParser(@"(?<= died )[^\)]+", "d MMMM yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\(]+", "yyyy"),
-                new DateParser(@"(?i)(?<=death year and age\|(df=yes\|)?)[^\|\]]+", "yyyy"),
-                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+", "yyyy"),
-                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy"),
-                new DateParser(@"(?i)(?<=Death date\s+and age\|(|mf=yes\|))\d+\|\d+\|\d+", "yyyy|M|d", "yyyy|MM|dd"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd yyyy"),
-                new DateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|d"),
-                new DateParser(@"(?<=death date and\s+(given)?\s*age\s*\|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|dd", "yyyy|M|d"),
-                new DateParser(@"(?<=d-da\|)[^\|<\(]+", "dd MMMM yyyy", "MMMM dd yyyy"),
-                new DateParser(@"(?<=Death\-date and age\|)[^\|\]]+", "MMMM d yyyy"),
-                new DateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+",
-                    "yyyy|M|d"),
-                new DateParser(@"(?<=disappeared_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy"),
-                new DateParser(@"(?<=death_date = \w+ or )\w+, \d+", "MMMM yyyy"),
-                new DateParser(@"(?i)(?<=Disappeared date\s+and age\|(|mf=yes\|))\d+\|\d+\|\d+", "yyyy|M|d", "yyyy|MM|dd"),
-            };
+            DeathDateParser = new DateParser()
+                .AddDateParser(@"(?i)(?<=death( |_)date(| and age)\s*\|((d|m)f=y(es|)\||)\s*)\d+\|\d+\|\d+", "yyyy|M|d")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy")
+                .AddDateParser(@"(?<=death_date(\s+|)={{D\-da\|)[^\|<\(]+", "d MMMM yyyy", "MMMM d yyyy")
+                .AddDateParser(@"(?<=Date of death\|)[^\]]+", "d MMMM yyyy")
+                .AddDateParser(@"(?<=death-date and age\|(df=yes\|)?)[^\|\]]+", "d MMMM yyyy", "MMMM d yyyy")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<{\\]+", "d MMMM yyyy", "MMMM d yyyy")
+                .AddDateParser(@"(?<=death_date =\\n)[^\\\|<{]+", "d MMMM yyyy")
+                .AddDateParser(@"(?<=death date\|)\d+\|\d+\|\d+", "yyyy|M|d")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\\]+", "MMMM d yyyy")
+                .AddDateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+ \w+ \d+", "d MMMM yyyy")
+                .AddDateParser(@"(?<= died )[^\)]+", "d MMMM yyyy")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))[^\|<\(]+", "yyyy")
+                .AddDateParser(@"(?i)(?<=death year and age\|(df=yes\|)?)[^\|\]]+", "yyyy")
+                .AddDateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\d+", "yyyy")
+                .AddDateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy")
+                .AddDateParser(@"(?<=DATE OF DEATH(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM d yyyy")
+                .AddDateParser(@"(?i)(?<=Death date\s+and age\|(|mf=yes\|))\d+\|\d+\|\d+", "yyyy|M|d", "yyyy|MM|dd")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|))\w+ \d+, \d+", "MMMM dd yyyy")
+                .AddDateParser(@"(?<=death_date(\s+|)=(\s+|){{dda\|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|d")
+                .AddDateParser(@"(?<=death date and\s+(given)?\s*age\s*\|)\d+\|\d+\|\d+", "yyyy|MM|dd", "yyyy|M|dd", "yyyy|M|d")
+                .AddDateParser(@"(?<=d-da\|)[^\|<\(]+", "dd MMMM yyyy", "MMMM dd yyyy")
+                .AddDateParser(@"(?<=Death\-date and age\|)[^\|\]]+", "MMMM d yyyy")
+                .AddDateParser(@"(?<={{Death date\|(df=y(es|)\||))\d+\|\d+\|\d+", "yyyy|M|d")
+                .AddDateParser(@"(?<=disappeared_date(\s+|)=(\s+|))\w+ \d+", "MMMM yyyy")
+                .AddDateParser(@"(?<=death_date = \w+ or )\w+, \d+", "MMMM yyyy")
+                .AddDateParser(@"(?i)(?<=Disappeared date\s+and age\|(|mf=yes\|))\d+\|\d+\|\d+", "yyyy|M|d", "yyyy|MM|dd");
+
             var descriptionRegexs = new[] {
                 @"(?i)(?<=SHORT DESCRIPTION[ =\|]*)[^\n|{}]+",
                 @"(?<=occupation[ =]*\[\[)[^\]<]+",
@@ -106,13 +101,12 @@ namespace DeathClock
             }
             else
             {
-                //personName = title.Replace('_', ' ');
                 personName = "Unknown";
             }
 
-            DateTime? birth = ExtractDate(jsonContent, BirthDateParsers);
+            DateTime? birth = BirthDateParser.ExtractDate(jsonContent);
 
-            DateTime? death = ExtractDate(jsonContent, DeathDateParsers);
+            DateTime? death = DeathDateParser.ExtractDate(jsonContent);
 
             if (birth == null)
             {
@@ -147,19 +141,6 @@ namespace DeathClock
 
             var person = new Person(personName, personBirthDate, personDeathDate, personDeathWordCount, personTitle, personWordCount, personDescription);
             return person;
-        }
-
-        private static DateTime? ExtractDate(string content, IEnumerable<DateParser> dateParsers)
-        {
-            DateTime? extractedDate = null;
-            foreach (var parser in dateParsers)
-            {
-                extractedDate = parser.GetDate(content);
-                if (extractedDate != null)
-                    break;
-            }
-
-            return extractedDate;
         }
 
         private void LogError(string message, params object[] args)

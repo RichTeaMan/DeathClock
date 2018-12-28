@@ -1,59 +1,95 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace DeathClock
 {
     public class DateParser
     {
-        public Regex DateRegex { get; private set; }
-        public string[] DateFormats { get; private set; }
+        private List<DateParserDefinition> countedDateParserDefinitions = new List<DateParserDefinition>();
 
-        public DateParser(string regex, params string[] dateFormats)
+        private int timesUsed = 0;
+
+        public DateParser AddDateParser(string regularExpression, params string[] dateFormats)
         {
-            DateRegex = new Regex(regex, RegexOptions.Compiled);
-            DateFormats = dateFormats;
+            var countedDateParserDefintion = new DateParserDefinition(regularExpression, dateFormats);
+            countedDateParserDefinitions.Add(countedDateParserDefintion);
+            return this;
         }
 
-        public DateTime? GetDate(string content)
+        public DateTime? ExtractDate(string content)
         {
-            var match = DateRegex.Match(content);
-            if (match.Success)
+            var localDefinitions = countedDateParserDefinitions;
+            DateTime? extractedDate = null;
+            foreach (var parser in localDefinitions)
             {
-                try
-                {
-                    var value = DateParser.AbbreviationFix(match.Value).Replace("\\n", "").Trim();
-                    var date = DateTime.ParseExact(value, DateFormats, null);
-                    return date;
-                }
-                catch { }
-
+                extractedDate = parser.GetDate(content);
+                if (extractedDate != null)
+                    break;
             }
-            return null;
+
+            if (Interlocked.Increment(ref timesUsed) % 100 == 0)
+            {
+                countedDateParserDefinitions = localDefinitions.OrderByDescending(d => d.TimesUsed).ToList();
+            }
+
+            return extractedDate;
         }
 
-        private static string AbbreviationFix(string match)
+        private class DateParserDefinition
         {
-            match = match.Replace(", ", " ");
-            match = match.Replace("Jan ", "January ");
-            match = match.Replace("Feb ", "February ");
-            match = match.Replace("Mar ", "March ");
-            match = match.Replace("Jun ", "June ");
-            match = match.Replace("Jul ", "July ");
-            match = match.Replace("Aug ", "August ");
-            match = match.Replace("Sep ", "September ");
-            match = match.Replace("Sept ", "September ");
-            match = match.Replace("Oct ", "October ");
-            match = match.Replace("Nov ", "November ");
-            match = match.Replace("Dec ", "December ");
-            match = match.Replace("1st", "1");
-            match = match.Replace("nd", string.Empty);
-            match = match.Replace("rd", string.Empty);
-            match = match.Replace("th", string.Empty);
-            return match;
+            public Regex DateRegex { get; private set; }
+            public string[] DateFormats { get; private set; }
+
+            private int timesUsed = 0;
+            public int TimesUsed { get { return timesUsed; } }
+
+            public DateParserDefinition(string regex, params string[] dateFormats)
+            {
+                DateRegex = new Regex(regex, RegexOptions.Compiled);
+                DateFormats = dateFormats;
+            }
+
+            public virtual DateTime? GetDate(string content)
+            {
+                var match = DateRegex.Match(content);
+                if (match.Success)
+                {
+                    try
+                    {
+                        var value = AbbreviationFix(match.Value).Replace("\\n", "").Trim();
+                        var date = DateTime.ParseExact(value, DateFormats, null);
+                        Interlocked.Increment(ref timesUsed);
+                        return date;
+                    }
+                    catch { }
+
+                }
+                return null;
+            }
+
+            private static string AbbreviationFix(string match)
+            {
+                match = match.Replace(", ", " ");
+                match = match.Replace("Jan ", "January ");
+                match = match.Replace("Feb ", "February ");
+                match = match.Replace("Mar ", "March ");
+                match = match.Replace("Jun ", "June ");
+                match = match.Replace("Jul ", "July ");
+                match = match.Replace("Aug ", "August ");
+                match = match.Replace("Sep ", "September ");
+                match = match.Replace("Sept ", "September ");
+                match = match.Replace("Oct ", "October ");
+                match = match.Replace("Nov ", "November ");
+                match = match.Replace("Dec ", "December ");
+                match = match.Replace("1st", "1");
+                match = match.Replace("nd", string.Empty);
+                match = match.Replace("rd", string.Empty);
+                match = match.Replace("th", string.Empty);
+                return match;
+            }
         }
     }
 }

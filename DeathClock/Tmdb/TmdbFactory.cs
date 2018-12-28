@@ -102,7 +102,7 @@ namespace DeathClock.Tmdb
                 logger.LogDebug("Following names do not pass popularity threshold.");
                 foreach(var unpopular in unpopularPeople)
                 {
-                    logger.LogDebug($"    {unpopular} - {unpopular.PersonDetail.Popularity}");
+                    logger.LogDebug($"    {unpopular.PersonDetail.Name} - {unpopular.PersonDetail.Popularity}");
                 }
 
                 var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Popularity >= POPULARITY_THRESHOLD).Select(p => Map(p)).ToArray();
