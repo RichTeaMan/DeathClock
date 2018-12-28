@@ -1,4 +1,5 @@
 ﻿using DeathClock.Tmdb.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RichTea.WebCache;
 using System;
@@ -19,29 +20,24 @@ namespace DeathClock.Tmdb
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
-        private readonly WebCache webCache;
-        private readonly string apiKey;
+        private readonly ILogger<TmdbFactory> logger;
 
-        public TmdbFactory(string apiKey, string cachePath)
+        private readonly WebCache webCache;
+
+        public TmdbFactory(ILogger<TmdbFactory> logger, WebCache webCache)
         {
-            this.apiKey = apiKey;
-            if (cachePath == null)
-            {
-                webCache = new WebCache("TMDB") { RateLimit = new RateLimit { Interval = 10, Requests = 40 } };
-            }
-            else
-            {
-                webCache = new WebCache("TMDB", cachePath) { RateLimit = new RateLimit { Interval = 10, Requests = 40 } };
-            }
+            this.logger = logger;
+            this.webCache = webCache;
         }
 
-        public async Task<IEnumerable<Persistence.Person>> GetMoviePersonList()
+        public async Task<IEnumerable<Persistence.Person>> GetMoviePersonList(string apiKey)
         {
+            webCache.RateLimit = new RateLimit { Interval = 10, Requests = 40 };
             int page = 1;
             int pageLimit = 2;
 
             List<int> personIds = new List<int>();
-
+            
             try
             {
 
@@ -56,6 +52,11 @@ namespace DeathClock.Tmdb
                 }
 
                 personIds = personIds.Distinct().ToList();
+                logger.LogDebug($"The {personIds.Count} IDs to be searched:");
+                foreach(var personId in personIds)
+                {
+                    logger.LogDebug($"{personId}");
+                }
 
                 Console.WriteLine($"{personIds.Count} person IDs loaded.");
 
@@ -85,9 +86,11 @@ namespace DeathClock.Tmdb
                             var message = $"{count} of {personIds.Count} complete. Download speed {webCache.DownloadSpeed} kB/s.";
                             Console.WriteLine(message);
                         }
+                        logger.LogDebug($"Person '{personCredits.PersonDetail.name}' logged.");
                     }
                     catch (Exception ex)
                     {
+                        logger.LogError(ex, $"Error while processing ID '{id}'.");
                         Console.WriteLine(ex);
                     }
                 }
@@ -100,10 +103,9 @@ namespace DeathClock.Tmdb
             }
             catch (Exception ex)
             {
-                throw new Exception("Death clock ded", ex);
+                logger.LogError(ex, "Error while processing movie person list.");
+                throw;
             }
-
-
         }
 
         private Persistence.Person Map(PersonCredits personCredits)

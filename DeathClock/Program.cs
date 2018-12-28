@@ -83,9 +83,9 @@ namespace DeathClock
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
                 var jsonPersistence = Container.Resolve<JsonPersistence>();
+                var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
 
-                var tmdbFactory = new Tmdb.TmdbFactory(tmdbApiKey, cacheDirectory);
-                var persons = await tmdbFactory.GetMoviePersonList();
+                var persons = await tmdbFactory.GetMoviePersonList(tmdbApiKey);
                 await jsonPersistence.SaveDeathClockDataAsync(new DeathClockData { PersonList = persons.ToArray(), CreatedOn = DateTimeOffset.Now, Name = "TMDB" }, Path.Combine(outputDirectory, "tmdbDeathClockData.json"));
 
                 Console.WriteLine("The Deathclock has finished.");
@@ -127,12 +127,13 @@ namespace DeathClock
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
-            containerBuilder.RegisterType<DeathClock>().As<DeathClock>();
-            containerBuilder.RegisterType<PersonFactory>().As<PersonFactory>();
-            containerBuilder.RegisterType<WikiListFactory>().As<WikiListFactory>();
-            containerBuilder.RegisterType<WikiUtility>().As<WikiUtility>();
-            containerBuilder.RegisterType<JsonPersistence>().As<JsonPersistence>();
-            containerBuilder.RegisterType<PersonMapper>().As<PersonMapper>();
+            containerBuilder.RegisterType<DeathClock>().SingleInstance();
+            containerBuilder.RegisterType<PersonFactory>().SingleInstance();
+            containerBuilder.RegisterType<WikiListFactory>().SingleInstance();
+            containerBuilder.RegisterType<WikiUtility>().SingleInstance();
+            containerBuilder.RegisterType<JsonPersistence>().SingleInstance();
+            containerBuilder.RegisterType<PersonMapper>().SingleInstance();
+            containerBuilder.RegisterType<Tmdb.TmdbFactory>().SingleInstance();
 
             WebCache webCache;
             if (string.IsNullOrEmpty(cacheDirectory))
