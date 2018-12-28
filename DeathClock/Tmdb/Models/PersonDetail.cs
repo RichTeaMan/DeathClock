@@ -1,23 +1,51 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace DeathClock.Tmdb.Models
 {
     public class PersonDetail
     {
-        public DateTime? birthday { get; set; }
-        public string known_for_department { get; set; }
-        public DateTime? deathday { get; set; }
-        public int id { get; set; }
-        public string name { get; set; }
-        public string[] also_known_as { get; set; }
-        public int gender { get; set; }
-        public string biography { get; set; }
-        public float popularity { get; set; }
-        public string place_of_birth { get; set; }
-        public string profile_path { get; set; }
-        public bool adult { get; set; }
-        public string imdb_id { get; set; }
-        public string homepage { get; set; }
+        [JsonProperty("birthday")]
+        public DateTime? Birthday { get; set; }
+
+        [JsonProperty("known_for_department")]
+        public string KnownForDepartment { get; set; }
+
+        [JsonProperty("deathday")]
+        public DateTime? DeathDay { get; set; }
+
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("also_known_as")]
+        public string[] AlsoKnownAs { get; set; }
+
+        [JsonProperty("gender")]
+        public int Gender { get; set; }
+
+        [JsonProperty("biography")]
+        public string Biography { get; set; }
+
+        [JsonProperty("popularity")]
+        public float Popularity { get; set; }
+
+        [JsonProperty("place_of_birth")]
+        public string PlaceOfBirth { get; set; }
+
+        [JsonProperty("profile_path")]
+        public string ProfilePath { get; set; }
+
+        [JsonProperty("adult")]
+        public bool Adult { get; set; }
+
+        [JsonProperty("imdb_id")]
+        public string ImdbId { get; set; }
+
+        [JsonProperty("homepage")]
+        public string HomePage { get; set; }
     }
 
 }

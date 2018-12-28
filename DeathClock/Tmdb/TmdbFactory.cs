@@ -49,9 +49,9 @@ namespace DeathClock.Tmdb
                     var searchResponseDocument = await webCache.GetWebPageAsync(string.Format(POPULAR_SEARCH_QUERY, apiKey, page));
                     var searchResponse = JsonConvert.DeserializeObject<PersonSearchResult>(searchResponseDocument.GetContents());
 
-                    pageLimit = searchResponse.total_pages;
+                    pageLimit = searchResponse.TotalPages;
                     page++;
-                    personIds.AddRange(searchResponse.results.Select(r => r.id));
+                    personIds.AddRange(searchResponse.Results.Select(r => r.Id));
                 }
 
                 personIds = personIds.Distinct().ToList();
@@ -89,7 +89,7 @@ namespace DeathClock.Tmdb
                             var message = $"{count} of {personIds.Count} complete. Download speed {webCache.DownloadSpeed} kB/s.";
                             Console.WriteLine(message);
                         }
-                        logger.LogDebug($"Person '{personCredits.PersonDetail.name}' logged. '{personCredits.PersonDetail?.birthday?.ToShortDateString()}' - '{personCredits.PersonDetail?.deathday?.ToShortDateString()}'");
+                        logger.LogDebug($"Person '{personCredits.PersonDetail.Name}' logged. '{personCredits.PersonDetail?.Birthday?.ToShortDateString()}' - '{personCredits.PersonDetail?.DeathDay?.ToShortDateString()}'");
                     }
                     catch (Exception ex)
                     {
@@ -98,14 +98,14 @@ namespace DeathClock.Tmdb
                     }
                 }
 
-                var unpopularPeople = personDetailList.Where(p => p.PersonDetail.popularity < POPULARITY_THRESHOLD);
+                var unpopularPeople = personDetailList.Where(p => p.PersonDetail.Popularity < POPULARITY_THRESHOLD);
                 logger.LogDebug("Following names do not pass popularity threshold.");
                 foreach(var unpopular in unpopularPeople)
                 {
-                    logger.LogDebug($"    {unpopular} - {unpopular.PersonDetail.popularity}");
+                    logger.LogDebug($"    {unpopular} - {unpopular.PersonDetail.Popularity}");
                 }
 
-                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.popularity >= POPULARITY_THRESHOLD).Select(p => Map(p)).ToArray();
+                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Popularity >= POPULARITY_THRESHOLD).Select(p => Map(p)).ToArray();
                 Console.WriteLine("Person detail complete");
                 logger.LogDebug("Ended get movie person list.");
                 return persistencePersonList;
@@ -122,25 +122,25 @@ namespace DeathClock.Tmdb
         {
             var personDetail = personCredits.PersonDetail;
             int age = -1;
-            if (personDetail.birthday != null && personDetail.deathday != null)
+            if (personDetail.Birthday != null && personDetail.DeathDay != null)
             {
-                age = (int)(personDetail.deathday.Value - personDetail.birthday.Value).TotalDays / 365;
+                age = (int)(personDetail.DeathDay.Value - personDetail.Birthday.Value).TotalDays / 365;
             }
-            else if (personDetail.birthday != null && personDetail.deathday == null)
+            else if (personDetail.Birthday != null && personDetail.DeathDay == null)
             {
-                age = (int)(DateTime.Now - personDetail.birthday.Value).TotalDays / 365;
+                age = (int)(DateTime.Now - personDetail.Birthday.Value).TotalDays / 365;
             }
 
             DateTime birthday = new DateTime(1900, 1, 1);
-            if (personDetail.birthday != null)
+            if (personDetail.Birthday != null)
             {
-                birthday = personDetail.birthday.Value;
+                birthday = personDetail.Birthday.Value;
             }
 
             string url = null;
-            if (!string.IsNullOrEmpty(personDetail.imdb_id))
+            if (!string.IsNullOrEmpty(personDetail.ImdbId))
             {
-                url = $"https://www.imdb.com/name/{personDetail.imdb_id}";
+                url = $"https://www.imdb.com/name/{personDetail.ImdbId}";
             }
 
             string knownFor = "Nothing";
@@ -169,14 +169,14 @@ namespace DeathClock.Tmdb
             {
                 Age = age,
                 BirthDate = birthday,
-                DeathDate = personDetail.deathday,
+                DeathDate = personDetail.DeathDay,
                 DeathWordCount = 0,
-                IsDead = personDetail.deathday != null,
+                IsDead = personDetail.DeathDay != null,
                 IsStub = false,
-                Title = personDetail.name,
+                Title = personDetail.Name,
                 Url = url,
                 WordCount = 0,
-                KnownFor = $"{personDetail.known_for_department}; {knownFor}"
+                KnownFor = $"{personDetail.KnownForDepartment}; {knownFor}"
             };
 
             return person;
