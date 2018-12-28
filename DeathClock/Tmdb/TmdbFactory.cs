@@ -20,6 +20,8 @@ namespace DeathClock.Tmdb
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
+        private const double POPULARITY_THRESHOLD = 5.0;
+
         private readonly ILogger<TmdbFactory> logger;
 
         private readonly WebCache webCache;
@@ -32,6 +34,7 @@ namespace DeathClock.Tmdb
 
         public async Task<IEnumerable<Persistence.Person>> GetMoviePersonList(string apiKey)
         {
+            logger.LogDebug("Start get movie person list.");
             webCache.RateLimit = new RateLimit { Interval = 10, Requests = 40 };
             int page = 1;
             int pageLimit = 2;
@@ -86,7 +89,7 @@ namespace DeathClock.Tmdb
                             var message = $"{count} of {personIds.Count} complete. Download speed {webCache.DownloadSpeed} kB/s.";
                             Console.WriteLine(message);
                         }
-                        logger.LogDebug($"Person '{personCredits.PersonDetail.name}' logged.");
+                        logger.LogDebug($"Person '{personCredits.PersonDetail.name}' logged. '{personCredits.PersonDetail?.birthday?.ToShortDateString()}' - '{personCredits.PersonDetail?.deathday?.ToShortDateString()}'");
                     }
                     catch (Exception ex)
                     {
@@ -95,9 +98,16 @@ namespace DeathClock.Tmdb
                     }
                 }
 
-                Console.WriteLine("Person detail complete");
+                var unpopularPeople = personDetailList.Where(p => p.PersonDetail.popularity < POPULARITY_THRESHOLD);
+                logger.LogDebug("Following names do not pass popularity threshold.");
+                foreach(var unpopular in unpopularPeople)
+                {
+                    logger.LogDebug($"    {unpopular} - {unpopular.PersonDetail.popularity}");
+                }
 
-                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.popularity > 5.0).Select(p => Map(p)).ToArray();
+                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.popularity >= POPULARITY_THRESHOLD).Select(p => Map(p)).ToArray();
+                Console.WriteLine("Person detail complete");
+                logger.LogDebug("Ended get movie person list.");
                 return persistencePersonList;
 
             }
