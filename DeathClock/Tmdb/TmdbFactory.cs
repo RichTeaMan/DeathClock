@@ -99,13 +99,20 @@ namespace DeathClock.Tmdb
                 }
 
                 var unpopularPeople = personDetailList.Where(p => p.PersonDetail.Popularity < POPULARITY_THRESHOLD);
-                logger.LogDebug("Following names do not pass popularity threshold.");
+                logger.LogDebug("Following names do not pass popularity threshold:");
                 foreach(var unpopular in unpopularPeople)
                 {
                     logger.LogDebug($"    {unpopular.PersonDetail.Name} - {unpopular.PersonDetail.Popularity}");
                 }
 
-                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Popularity >= POPULARITY_THRESHOLD).Select(p => Map(p)).ToArray();
+                var birtlessPeople = personDetailList.Where(p => !p.PersonDetail.Birthday.HasValue);
+                logger.LogDebug("Following names do not have a birthday:");
+                foreach (var birthless in birtlessPeople)
+                {
+                    logger.LogDebug($"    {birthless.PersonDetail.Name}");
+                }
+
+                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Popularity >= POPULARITY_THRESHOLD && p.PersonDetail.Birthday.HasValue).Select(p => Map(p)).ToArray();
                 Console.WriteLine("Person detail complete");
                 logger.LogDebug("Ended get movie person list.");
                 return persistencePersonList;
