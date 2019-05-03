@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using PersistencePerson = DeathClock.Persistence.Person;
+using PersistencePerson = DeathClock.Persistence.TmdbPerson;
 
 namespace DeathClock
 {
@@ -14,16 +14,12 @@ namespace DeathClock
         {
             PersistencePerson persistencePerson = new PersistencePerson
             {
-                Age = person.Age,
                 BirthDate = person.BirthDate,
                 DeathDate = person.DeathDate,
-                DeathWordCount = person.DeathWordCount,
                 IsDead = person.IsDead,
-                IsStub = person.IsStub,
                 Title = person.Title,
-                Url = person.Url,
-                KnownFor = person.KnownFor,
-                WordCount = person.WordCount
+                ImdbUrl = person.Url,
+                KnownFor = person.KnownFor
             };
 
             return persistencePerson;

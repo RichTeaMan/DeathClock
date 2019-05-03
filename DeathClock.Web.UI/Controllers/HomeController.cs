@@ -25,17 +25,17 @@ namespace DeathClock.Web.UI.Controllers
             {
                 dataset = dataContext.DeathClockDataSet.First();
             }
-            Person[] personList;
+            TmdbPerson[] personList;
             if (deathYear.HasValue)
             {
-                personList = dataset.ByDeathYear(deathYear.Value);
+                personList = dataset.PersonList.ByDeathYear(deathYear.Value);
             }
             else
             {
-                personList = dataset.MostRisk();
+                personList = dataset.PersonList.MostRisk();
             }
 
-            Person[] pagedPersonList = personList.Skip((page - 1) * Constants.ItemsPerPage)
+            TmdbPerson[] pagedPersonList = personList.Skip((page - 1) * Constants.ItemsPerPage)
                 .Take(Constants.ItemsPerPage)
                 .ToArray();
 

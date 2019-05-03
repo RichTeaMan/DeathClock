@@ -8,18 +8,18 @@ namespace DeathClock.Web.UI
 {
     public static class DeathClockDataExtensions
     {
-        public static Person[] MostRisk(this DeathClockData deathClockData)
+        public static TmdbPerson[] MostRisk(this TmdbPerson[] personList)
         {
-            var orderedPersons = deathClockData.PersonList
+            var orderedPersons = personList
                 .Where(p => !p.IsDead)
                 .OrderByDescending(p => p.Age)
                 .ToArray();
             return orderedPersons;
         }
 
-        public static Person[] ByDeathYear(this DeathClockData deathClockData, int deathYear)
+        public static TmdbPerson[] ByDeathYear(this TmdbPerson[] personList, int deathYear)
         {
-            var orderedPersons = deathClockData.PersonList
+            var orderedPersons = personList
                 .Where(p => p.DeathDate?.Year == deathYear)
                 .OrderBy(p => p.DeathDate)
                 .ToArray();

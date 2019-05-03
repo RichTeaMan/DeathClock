@@ -10,7 +10,7 @@ namespace DeathClock.Web.UI.Models
     {
         public string[] DatasetNames { get; set; }
 
-        public Person[] PersonList { get; set; }
+        public TmdbPerson[] PersonList { get; set; }
         public string DatasetName { get; set; }
         public int? DeathYear { get; set; }
         public int Page { get; set; }

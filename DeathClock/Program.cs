@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DeathClock.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -82,11 +83,13 @@ namespace DeathClock
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var jsonPersistence = Container.Resolve<JsonPersistence>();
+                var context = Container.Resolve<DeathClockContext>();
                 var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
 
                 var persons = await tmdbFactory.GetMoviePersonList(tmdbApiKey);
-                await jsonPersistence.SaveDeathClockDataAsync(new DeathClockData { PersonList = persons.ToArray(), CreatedOn = DateTimeOffset.Now, Name = "TMDB" }, Path.Combine(outputDirectory, "tmdbDeathClockData.json"));
+
+                await context.TmdbPersons.AddRangeAsync(persons.ToArray());
+                await context.SaveChangesAsync();
 
                 Console.WriteLine("The Deathclock has finished.");
             }
@@ -125,13 +128,20 @@ namespace DeathClock
                 l.AddConsole().AddDebug().AddFile(Path.Combine(resultDirectory, "log.txt"), LogLevel.Trace);
             });
 
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            var config = builder.Build();
+            var connectionString = config.GetConnectionString("DeathClockDatabase");
+
+            serviceCollection.AddDbContext<DeathClockContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Transient);
+
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
             containerBuilder.RegisterType<DeathClock>().SingleInstance();
             containerBuilder.RegisterType<PersonFactory>().SingleInstance();
             containerBuilder.RegisterType<WikiListFactory>().SingleInstance();
             containerBuilder.RegisterType<WikiUtility>().SingleInstance();
-            containerBuilder.RegisterType<JsonPersistence>().SingleInstance();
+            containerBuilder.RegisterType<DeathClockContext>().SingleInstance();
             containerBuilder.RegisterType<PersonMapper>().SingleInstance();
             containerBuilder.RegisterType<Tmdb.TmdbFactory>().SingleInstance();
 

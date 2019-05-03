@@ -20,11 +20,13 @@ namespace DeathClock.Tmdb
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
-        private const double POPULARITY_THRESHOLD = 2.0;
+        private const double POPULARITY_THRESHOLD = 0.0;
 
         private readonly ILogger<TmdbFactory> logger;
 
         private readonly WebCache webCache;
+
+        private readonly Random random = new Random();
 
         public TmdbFactory(ILogger<TmdbFactory> logger, WebCache webCache)
         {
@@ -32,7 +34,7 @@ namespace DeathClock.Tmdb
             this.webCache = webCache;
         }
 
-        public async Task<IEnumerable<Persistence.Person>> GetMoviePersonList(string apiKey)
+        public async Task<IEnumerable<Persistence.TmdbPerson>> GetMoviePersonList(string apiKey)
         {
             logger.LogDebug("Start get movie person list.");
             webCache.RateLimit = new RateLimit { Interval = 10, Requests = 40 };
@@ -125,7 +127,7 @@ namespace DeathClock.Tmdb
             }
         }
 
-        private Persistence.Person Map(PersonCredits personCredits)
+        private Persistence.TmdbPerson Map(PersonCredits personCredits)
         {
             var personDetail = personCredits.PersonDetail;
             int age = -1;
@@ -144,7 +146,7 @@ namespace DeathClock.Tmdb
                 birthday = personDetail.Birthday.Value;
             }
 
-            string url = null;
+            string url = string.Empty;
             if (!string.IsNullOrEmpty(personDetail.ImdbId))
             {
                 url = $"https://www.imdb.com/name/{personDetail.ImdbId}";
@@ -172,21 +174,78 @@ namespace DeathClock.Tmdb
                     knownFor = popular.Title;
             }
 
-            var person = new Persistence.Person
+            var person = new Persistence.TmdbPerson
             {
-                Age = age,
                 BirthDate = birthday,
                 DeathDate = personDetail.DeathDay,
-                DeathWordCount = 0,
                 IsDead = personDetail.DeathDay != null,
-                IsStub = false,
                 Title = personDetail.Name,
-                Url = url,
-                WordCount = 0,
-                KnownFor = $"{personDetail.KnownForDepartment}; {knownFor}"
+                ImdbUrl =  url ,
+                TmdbId = personCredits.PersonDetail.Id,
+                KnownFor = $"{personDetail.KnownForDepartment}; {knownFor}",
+                DataSet = "TMDB",
+                Popularity = personDetail.Popularity,
+                RecordedDate = DateTime.Now,
+                UpdateDate = CreatedUpdatedDate()
             };
 
             return person;
+        }
+
+        private DateTime CreatedUpdatedDate()
+        {
+            var minimum = new TimeSpan(7, 0, 0, 0);
+            var maximum = new TimeSpan(14, 0, 0, 0);
+
+            var ticks = RandomLong(random, minimum.Ticks, maximum.Ticks) + DateTime.Now.Ticks;
+
+            var date = new DateTime(ticks);
+            return date;
+        }
+
+        static long RandomLong(Random rnd)
+        {
+            byte[] buffer = new byte[8];
+            rnd.NextBytes(buffer);
+            return BitConverter.ToInt64(buffer, 0);
+        }
+
+        static long RandomLong(Random rnd, long min, long max)
+        {
+            EnsureMinLEQMax(ref min, ref max);
+            long numbersInRange = unchecked(max - min + 1);
+            if (numbersInRange < 0)
+                throw new ArgumentException("Size of range between min and max must be less than or equal to Int64.MaxValue");
+
+            long randomOffset = RandomLong(rnd);
+            if (IsModuloBiased(randomOffset, numbersInRange))
+                return RandomLong(rnd, min, max); // Try again
+            else
+                return min + PositiveModuloOrZero(randomOffset, numbersInRange);
+        }
+
+        static bool IsModuloBiased(long randomOffset, long numbersInRange)
+        {
+            long greatestCompleteRange = numbersInRange * (long.MaxValue / numbersInRange);
+            return randomOffset > greatestCompleteRange;
+        }
+
+        static long PositiveModuloOrZero(long dividend, long divisor)
+        {
+            long mod;
+            Math.DivRem(dividend, divisor, out mod);
+            if (mod < 0)
+                mod += divisor;
+            return mod;
+        }
+
+        static void EnsureMinLEQMax(ref long min, ref long max)
+        {
+            if (min <= max)
+                return;
+            long temp = min;
+            min = max;
+            max = temp;
         }
 
         private class PersonCredits

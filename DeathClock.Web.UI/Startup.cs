@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DeathClock.Web.UI
 {
@@ -31,7 +31,12 @@ namespace DeathClock.Web.UI
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddSingleton<JsonPersistence>();
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            var config = builder.Build();
+            var connectionString = config.GetConnectionString("DeathClockDatabase");
+
+            services.AddDbContext<DeathClockContext>(options => options.UseSqlServer(connectionString));
             services.AddSingleton<DataContext>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -59,7 +64,7 @@ namespace DeathClock.Web.UI
             });
 
             var dataPathList = Configuration.GetValue<string>("DeathClockData")?.Split(",").Where(p => !string.IsNullOrEmpty(p)).ToArray();
-            var persistence = app.ApplicationServices.GetService<JsonPersistence>();
+            var persistence = app.ApplicationServices.GetService<DeathClockContext>();
             var dataContext = app.ApplicationServices.GetService<DataContext>();
 
             if (dataPathList?.Any() != true)
@@ -68,15 +73,14 @@ namespace DeathClock.Web.UI
             }
             else
             {
-                List<DeathClockData> deathClockDatas = new List<DeathClockData>();
+                List<TmdbPerson> deathClockDatas = new List<TmdbPerson>();
                 foreach (var path in dataPathList)
                 {
-                    var t = persistence.LoadDeathClockDataAsync(path);
-                    t.Wait();
-                    deathClockDatas.Add(t.Result);
+                    var persons = persistence.TmdbPersons.ToArray();
+                    deathClockDatas.AddRange(persons);
 
                 }
-                dataContext.DeathClockDataSet = deathClockDatas.ToArray();
+                dataContext.Persons = deathClockDatas.ToArray();
             }
         }
     }

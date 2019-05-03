@@ -38,3 +38,18 @@ docker run -d -v deathclock_data:/var/deathclock deathclock
 ```
 
 Insights from the necromicon will be rested in the deathclock_data volume.
+
+## Deployment
+
+The following command will deploy the database to localhost:
+```
+dotnet ef database update --project DeathClock.Persistence --startup-project DeathClock.Web.UI
+```
+The connection string can be changed in NewsCrawler.Persistence/appsettings.json.
+
+## Creating a Migration
+
+After making changes run the following to create a migration. Run the update command to apply changes.
+```
+dotnet ef migrations add < name of migration > --project DeathClock.Persistence --startup-project DeathClock.Web.UI
+```

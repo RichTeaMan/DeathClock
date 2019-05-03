@@ -36,7 +36,7 @@ namespace DeathClock
         /// </summary>
         private readonly WebCache webCache;
 
-        private readonly JsonPersistence jsonPersistence;
+        private readonly DeathClockContext context;
 
         private readonly PersonMapper personMapper;
 
@@ -45,13 +45,13 @@ namespace DeathClock
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache, JsonPersistence jsonPersistence, PersonMapper personMapper)
+        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache, DeathClockContext context, PersonMapper personMapper)
         {
             this.logger = logger;
             this.personFactory = personFactory;
             this.wikiListFactory = wikiListFactory;
             this.webCache = webCache;
-            this.jsonPersistence = jsonPersistence;
+            this.context = context;
             this.personMapper = personMapper;
         }
 
@@ -149,8 +149,8 @@ namespace DeathClock
             var wikiStubData = personMapper.MapToDeathClockData(people.Where(p => p.IsStub));
             wikiStubData.Name = "Wikipedia Stubs";
 
-            await jsonPersistence.SaveDeathClockDataAsync(wikiData, Path.Combine(OutputDirectory, "WikiDeathClockData.json"));
-            await jsonPersistence.SaveDeathClockDataAsync(wikiStubData, Path.Combine(OutputDirectory, "WikiStubDeathClockData.json"));
+            // await context.SaveDeathClockDataAsync(wikiData, Path.Combine(OutputDirectory, "WikiDeathClockData.json"));
+            // await context.SaveDeathClockDataAsync(wikiStubData, Path.Combine(OutputDirectory, "WikiStubDeathClockData.json"));
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());
