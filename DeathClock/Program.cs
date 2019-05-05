@@ -18,7 +18,7 @@ namespace DeathClock
     {
         private static IContainer Container { get; set; }
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             MethodInvoker command = null;
             try
@@ -35,6 +35,7 @@ namespace DeathClock
                 try
                 {
                     command.Invoke();
+                    return 0;
                 }
                 catch (Exception ex)
                 {
@@ -50,8 +51,11 @@ namespace DeathClock
                     }
 
                     Console.WriteLine(ex.StackTrace);
+                    return 1;
                 }
             }
+
+            return -1;
         }
 
         [ClCommand("tmdb")]
