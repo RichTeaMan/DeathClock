@@ -31,7 +31,7 @@ namespace DeathClock
 
         public override int GetHashCode()
         {
-            return new HashCodeBuilder<WikiListPage>(this)
+            return new HashCodeBuilder()
                 .Append(ListTitles)
                 .Append(PersonTitles)
                 .HashCode;
