@@ -25,9 +25,10 @@ namespace DeathClock
                 IsStub = person.IsStub,
                 WordCount = person.WordCount,
                 DeathWordCount = person.DeathWordCount,
+                KnownFor = string.Empty,
                 RecordedDate = DateTime.Now,
                 UpdateDate = CreatedUpdatedDate(),
-                DataSet = "wikipedia"
+                DataSet = person.IsStub ? Constants.WIKIPEDIA_STUB_NAME : Constants.WIKIPEDIA_DATASET_NAME
             };
 
             return persistencePerson;

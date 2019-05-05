@@ -9,14 +9,7 @@ namespace DeathClock.Persistence
     public class TmdbPerson : BasePerson
     {
         [Required]
-        [MaxLength(Constants.MAX_URL_LENGTH)]
-        public string ImdbUrl { get; set; }
-
-        [Required]
         public int TmdbId { get; set; }
-
-        [Required]
-        public string KnownFor { get; set; }
 
         [Required]
         public double Popularity { get; set; }

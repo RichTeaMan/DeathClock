@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DeathClock.Web.UI
 {
@@ -37,7 +34,6 @@ namespace DeathClock.Web.UI
             var connectionString = config.GetConnectionString("DeathClockDatabase");
 
             services.AddDbContext<DeathClockContext>(options => options.UseSqlServer(connectionString));
-            services.AddSingleton<DataContext>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -62,26 +58,6 @@ namespace DeathClock.Web.UI
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            var dataPathList = Configuration.GetValue<string>("DeathClockData")?.Split(",").Where(p => !string.IsNullOrEmpty(p)).ToArray();
-            var persistence = app.ApplicationServices.GetService<DeathClockContext>();
-            var dataContext = app.ApplicationServices.GetService<DataContext>();
-
-            if (dataPathList?.Any() != true)
-            {
-                throw new ArgumentException("A DeathClockData must be supplied.");
-            }
-            else
-            {
-                List<TmdbPerson> deathClockDatas = new List<TmdbPerson>();
-                foreach (var path in dataPathList)
-                {
-                    var persons = persistence.TmdbPersons.ToArray();
-                    deathClockDatas.AddRange(persons);
-
-                }
-                dataContext.Persons = deathClockDatas.ToArray();
-            }
         }
     }
 }

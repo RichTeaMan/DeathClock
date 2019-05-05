@@ -54,9 +54,9 @@
             {
                 <tr>
                     <td>
-                        @if (person.ImdbUrl != null)
+                        @if (!string.IsNullOrWhiteSpace(person.Url))
                         {
-                            <a href="@person.ImdbUrl">@person.Title</a>
+                            <a href="@person.Url">@person.Title</a>
                         }
                         else
                         {

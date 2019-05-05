@@ -11,42 +11,53 @@ namespace DeathClock.Web.UI.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly DataContext dataContext;
+        private readonly DeathClockContext deathClockContext;
 
-        public HomeController(DataContext dataContext)
+        public HomeController(DeathClockContext deathClockContext)
         {
-            this.dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
+            this.deathClockContext = deathClockContext ?? throw new ArgumentNullException(nameof(deathClockContext));
         }
 
         public IActionResult Index(string datasetName, int? deathYear, int page = 1)
         {
-            var dataset = dataContext.DeathClockDataSet.FirstOrDefault(d => d.Name == datasetName);
-            if (dataset == null)
+            IEnumerable<BasePerson> persons = null;
+            switch(datasetName)
             {
-                dataset = dataContext.DeathClockDataSet.First();
+                case Persistence.Constants.TMDB_DATASET_NAME:
+                default:
+                    persons = deathClockContext.TmdbPersons;
+                    datasetName = Persistence.Constants.TMDB_DATASET_NAME;
+                    break;
+
+                case Persistence.Constants.WIKIPEDIA_DATASET_NAME:
+                    persons = deathClockContext.WikipediaPersons.Where(p => !p.IsStub);
+                    break;
+
+                case Persistence.Constants.WIKIPEDIA_STUB_NAME:
+                    persons = deathClockContext.WikipediaPersons.Where(p => p.IsStub);
+                    break;
             }
-            TmdbPerson[] personList;
             if (deathYear.HasValue)
             {
-                personList = dataset.PersonList.ByDeathYear(deathYear.Value);
+                persons = persons.ByDeathYear(deathYear.Value);
             }
             else
             {
-                personList = dataset.PersonList.MostRisk();
+                persons = persons.MostRisk();
             }
 
-            TmdbPerson[] pagedPersonList = personList.Skip((page - 1) * Constants.ItemsPerPage)
+            var pagedPersonList = persons.Skip((page - 1) * Constants.ItemsPerPage)
                 .Take(Constants.ItemsPerPage)
                 .ToArray();
 
             var model = new ResultListModel
             {
-                DatasetNames = dataContext.DeathClockDataSet.Select(d => d.Name).ToArray(),
-                DatasetName = dataset.Name,
+                DatasetNames = new[] { Persistence.Constants.TMDB_DATASET_NAME, Persistence.Constants.WIKIPEDIA_DATASET_NAME, Persistence.Constants.WIKIPEDIA_STUB_NAME },
+                DatasetName = datasetName,
                 PersonList = pagedPersonList,
                 DeathYear = deathYear,
                 Page = page,
-                TotalPages = (personList.Count() / Constants.ItemsPerPage) + 1
+                TotalPages = (persons.Count() / Constants.ItemsPerPage) + 1
             };
             return View(model);
         }

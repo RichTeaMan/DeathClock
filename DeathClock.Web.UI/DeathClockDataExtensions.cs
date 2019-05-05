@@ -8,7 +8,7 @@ namespace DeathClock.Web.UI
 {
     public static class DeathClockDataExtensions
     {
-        public static TmdbPerson[] MostRisk(this TmdbPerson[] personList)
+        public static IEnumerable<BasePerson> MostRisk(this IEnumerable<BasePerson> personList)
         {
             var orderedPersons = personList
                 .Where(p => !p.IsDead)
@@ -17,7 +17,7 @@ namespace DeathClock.Web.UI
             return orderedPersons;
         }
 
-        public static TmdbPerson[] ByDeathYear(this TmdbPerson[] personList, int deathYear)
+        public static IEnumerable<BasePerson> ByDeathYear(this IEnumerable<BasePerson> personList, int deathYear)
         {
             var orderedPersons = personList
                 .Where(p => p.DeathDate?.Year == deathYear)

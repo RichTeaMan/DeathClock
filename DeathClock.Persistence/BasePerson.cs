@@ -24,9 +24,16 @@ namespace DeathClock.Persistence
         public string Title { get; set; }
 
         [Required]
-
         [MaxLength(Constants.MAX_DATASET_LENGTH)]
         public string DataSet { get; set; }
+
+        [Required]
+        [MaxLength(Constants.MAX_URL_LENGTH)]
+        public string Url { get; set; }
+
+        [Required]
+        [MaxLength(Constants.MAX_KNOWN_FOR_LENGTH)]
+        public string KnownFor { get; set; }
 
         [Required]
         public DateTime RecordedDate { get; set; }

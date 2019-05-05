@@ -1,4 +1,5 @@
-﻿using DeathClock.Tmdb.Models;
+﻿using DeathClock.Persistence;
+using DeathClock.Tmdb.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RichTea.Common.Extensions;
@@ -174,16 +175,16 @@ namespace DeathClock.Tmdb
                     knownFor = popular.Title;
             }
 
-            var person = new Persistence.TmdbPerson
+            var person = new TmdbPerson
             {
                 BirthDate = birthday,
                 DeathDate = personDetail.DeathDay,
                 IsDead = personDetail.DeathDay != null,
                 Title = personDetail.Name,
-                ImdbUrl =  url ,
+                Url = url,
                 TmdbId = personCredits.PersonDetail.Id,
                 KnownFor = $"{personDetail.KnownForDepartment}; {knownFor}",
-                DataSet = "TMDB",
+                DataSet = Constants.TMDB_DATASET_NAME,
                 Popularity = personDetail.Popularity,
                 RecordedDate = DateTime.Now,
                 UpdateDate = CreatedUpdatedDate()
