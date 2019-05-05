@@ -76,7 +76,6 @@ namespace DeathClock
                 Console.WriteLine("Using TMDB API key from command line parameters.");
             }
 
-
             using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
             {
                 Directory.CreateDirectory(outputDirectory);
@@ -142,7 +141,7 @@ namespace DeathClock
             containerBuilder.RegisterType<WikiListFactory>().SingleInstance();
             containerBuilder.RegisterType<WikiUtility>().SingleInstance();
             containerBuilder.RegisterType<DeathClockContext>().SingleInstance();
-            containerBuilder.RegisterType<PersonMapper>().SingleInstance();
+            containerBuilder.RegisterType<WikipediaPersonMapper>().SingleInstance();
             containerBuilder.RegisterType<Tmdb.TmdbFactory>().SingleInstance();
 
             WebCache webCache;

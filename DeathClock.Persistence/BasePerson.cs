@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace DeathClock.Persistence
 {
     /// <summary>
-    /// Contains TMDB person details.
+    /// Contains abstract person details.
     /// </summary>
-    public class TmdbPerson
+    public abstract class BasePerson
     {
         [Key]
         public int Id { get; set; }
@@ -22,19 +22,6 @@ namespace DeathClock.Persistence
         [Required]
         [MaxLength(Constants.MAX_TITLE_LENGTH)]
         public string Title { get; set; }
-
-        [Required]
-        [MaxLength(Constants.MAX_URL_LENGTH)]
-        public string ImdbUrl { get; set; }
-
-        [Required]
-        public int TmdbId { get; set; }
-
-        [Required]
-        public string KnownFor { get; set; }
-
-        [Required]
-        public double Popularity { get; set; }
 
         [Required]
 

@@ -36,37 +36,38 @@ namespace DeathClock
         /// </summary>
         private readonly WebCache webCache;
 
-        private readonly DeathClockContext context;
+        private readonly DeathClockContext deathClockContext;
 
-        private readonly PersonMapper personMapper;
+        private readonly WikipediaPersonMapper personMapper;
 
         /// <summary>
         /// Gets or sets the directory where results will be saved.
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
-        public DeathClock(ILogger<DeathClock> logger, PersonFactory personFactory, WikiListFactory wikiListFactory, WebCache webCache, DeathClockContext context, PersonMapper personMapper)
+
+        public DeathClock(ILogger<DeathClock> logger,
+            PersonFactory personFactory,
+            WikiListFactory wikiListFactory,
+            WebCache webCache,
+            DeathClockContext deathClockContext,
+            WikipediaPersonMapper personMapper)
         {
             this.logger = logger;
             this.personFactory = personFactory;
             this.wikiListFactory = wikiListFactory;
             this.webCache = webCache;
-            this.context = context;
+            this.deathClockContext = deathClockContext;
             this.personMapper = personMapper;
         }
 
         public async Task Start(string[] listArticles)
         {
             logger.LogTrace("Deathclock started.");
-            logger.LogInformation($"Output directory: {OutputDirectory}");
             logger.LogInformation($"Cache directory: {webCache.CachePath}");
-
-            Directory.CreateDirectory(OutputDirectory);
 
             Console.WriteLine("Finding articles...");
             var titles = await FindArticleTitles(listArticles);
-
-            File.WriteAllLines(Path.Combine(OutputDirectory, "ExaminedArticles.txt"), titles.ToArray());
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
@@ -143,14 +144,9 @@ namespace DeathClock
 
             Console.WriteLine($"{people.Count} people found.");
 
-            var wikiData = personMapper.MapToDeathClockData(people.Where(p => !p.IsStub));
-            wikiData.Name = "Wikipedia";
-
-            var wikiStubData = personMapper.MapToDeathClockData(people.Where(p => p.IsStub));
-            wikiStubData.Name = "Wikipedia Stubs";
-
-            // await context.SaveDeathClockDataAsync(wikiData, Path.Combine(OutputDirectory, "WikiDeathClockData.json"));
-            // await context.SaveDeathClockDataAsync(wikiStubData, Path.Combine(OutputDirectory, "WikiStubDeathClockData.json"));
+            var persistencePeople = people.Select(p => personMapper.Map(p)).ToArray();
+            await deathClockContext.WikipediaPersons.AddRangeAsync(persistencePeople);
+            await deathClockContext.SaveChangesAsync();
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
             File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());

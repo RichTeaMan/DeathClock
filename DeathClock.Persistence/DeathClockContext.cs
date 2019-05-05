@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading.Tasks;
 
 namespace DeathClock.Persistence
 {
@@ -9,6 +7,8 @@ namespace DeathClock.Persistence
     public class DeathClockContext : DbContext
     {
         public DbSet<TmdbPerson> TmdbPersons { get; set; }
+
+        public DbSet<WikipediaPerson> WikipediaPersons { get; set; }
 
         public DeathClockContext(DbContextOptions<DeathClockContext> options)
             : base(options)
@@ -18,7 +18,9 @@ namespace DeathClock.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TmdbPerson>();
+            modelBuilder.Entity<TmdbPerson>().HasBaseType<BasePerson>();
+
+            modelBuilder.Entity<WikipediaPerson>().HasBaseType<BasePerson>();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
