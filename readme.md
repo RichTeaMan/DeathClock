@@ -4,10 +4,10 @@ This is a grim project that attempts to predict upcoming deaths of people from t
 
 ## Cake Tasks
 This project uses [Cake](https://cakebuild.net).
-* cake -target=Clean
-* cake -target=Build
-* cake -target=Test
-* cake -target=Run
+* ./cake.sh -target=Clean
+* ./cake.sh -target=Build
+* ./cake.sh -target=Test
+* ./cake.sh -target=Run
 
 ## Api Keys
 
