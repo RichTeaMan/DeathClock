@@ -76,7 +76,7 @@ Task("TestRun")
 
     command += " -list List_of_Scots";
 
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.2/DeathClock.dll", command);
 });
 
 Task("Run")
@@ -94,7 +94,7 @@ Task("Run")
 
     command += " -list List_of_English_people List_of_Scots List_of_Welsh_people List_of_Irish_people Lists_of_Americans";
 
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.2/DeathClock.dll", command);
 });
 
 Task("Run-Tmdb")
@@ -113,7 +113,7 @@ Task("Run-Tmdb")
         command += $" -cacheDirectory {cacheDirectory}";
     }
     
-    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.1/DeathClock.dll", command);
+    DotNetCoreExecute($"./DeathClock/bin/{buildDir}/netcoreapp2.2/DeathClock.dll", command);
 });
 
 Task("Run-All")
@@ -125,7 +125,7 @@ Task("Web-UI")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var publishDirectory = $"./DeathClock.Web.UI/bin/{buildDir}/netcoreapp2.1/publish";
+    var publishDirectory = $"./DeathClock.Web.UI/bin/{buildDir}/netcoreapp2.2/publish";
     var executeSettings = new DotNetCoreExecuteSettings
     {
         WorkingDirectory = publishDirectory
