@@ -2,7 +2,7 @@
   "profiles": {
     "DeathClock": {
       "commandName": "Project",
-      "commandLineArgs": "tmdb"
+      "commandLineArgs": "tmdb-update"
     }
   }
 }

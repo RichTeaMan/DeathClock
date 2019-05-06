@@ -1,8 +1,8 @@
 ﻿using DeathClock.Persistence;
 using DeathClock.Tmdb.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RichTea.Common.Extensions;
 using RichTea.WebCache;
 using System;
 using System.Collections.Concurrent;
@@ -13,122 +13,155 @@ using System.Threading.Tasks;
 
 namespace DeathClock.Tmdb
 {
-    public class TmdbFactory
+    public class TmdbFactory : AbstractPersonFactory<TmdbPerson>
     {
-
         private const string POPULAR_SEARCH_QUERY = "https://api.themoviedb.org/3/person/popular?api_key={0}&language=en-US&page={1}";
 
         private const string PERSON_DETAIL_QUERY = "https://api.themoviedb.org/3/person/{1}?api_key={0}&language=en-US";
 
         private const string COMBINED_CREDIT_QUERY = "https://api.themoviedb.org/3/person/{1}/combined_credits?api_key={0}&language=en-US";
 
-        private const double POPULARITY_THRESHOLD = 0.0;
-
         private readonly ILogger<TmdbFactory> logger;
 
         private readonly WebCache webCache;
 
-        private readonly Random random = new Random();
+        private readonly DeathClockContext deathClockContext;
 
-        public TmdbFactory(ILogger<TmdbFactory> logger, WebCache webCache)
+        public string ApiKey { get; set; }
+
+        public TmdbFactory(ILogger<TmdbFactory> logger, WebCache webCache, DeathClockContext deathClockContext) : base(logger)
         {
             this.logger = logger;
             this.webCache = webCache;
+            this.deathClockContext = deathClockContext;
         }
 
-        public async Task<IEnumerable<Persistence.TmdbPerson>> GetMoviePersonList(string apiKey)
+        public override async Task FindNewPersons()
         {
+            if (string.IsNullOrWhiteSpace(ApiKey))
+            {
+                throw new InvalidOperationException("An ApiKey must be set.");
+            }
+
             logger.LogDebug("Start get movie person list.");
             webCache.RateLimit = new RateLimit { Interval = 10, Requests = 40 };
             int page = 1;
             int pageLimit = 2;
 
+            logger.LogDebug("Getting existing TMDB person IDs.");
+            var existingTmdbIds = deathClockContext.TmdbPersons.Select(p => p.TmdbId).ToHashSet();
+            logger.LogDebug($"{existingTmdbIds.Count} existing hash set IDs loaded.");
+
             List<int> personIds = new List<int>();
-            
-            try
+
+            while (page < pageLimit)
             {
-                while (page < pageLimit)
-                {
-                    var searchResponseDocument = await webCache.GetWebPageAsync(string.Format(POPULAR_SEARCH_QUERY, apiKey, page));
-                    var searchResponse = JsonConvert.DeserializeObject<PersonSearchResult>(searchResponseDocument.GetContents());
+                var searchResponseDocument = await webCache.GetWebPageAsync(string.Format(POPULAR_SEARCH_QUERY, ApiKey, page));
+                var searchResponse = JsonConvert.DeserializeObject<PersonSearchResult>(searchResponseDocument.GetContents());
 
-                    pageLimit = searchResponse.TotalPages;
-                    page++;
-                    personIds.AddRange(searchResponse.Results.Select(r => r.Id));
-                }
-
-                personIds = personIds.Distinct().ToList();
-                logger.LogDebug($"The {personIds.Count} IDs to be searched:");
-                foreach(var personId in personIds)
-                {
-                    logger.LogDebug($"{personId}");
-                }
-
-                Console.WriteLine($"{personIds.Count} person IDs loaded.");
-
-                ConcurrentBag<PersonCredits> personDetailList = new ConcurrentBag<PersonCredits>();
-
-                int personCount = 0;
-                foreach (var id in personIds)
-                {
-                    try
-                    {
-                        var personDetailDocument = await webCache.GetWebPageAsync(string.Format(PERSON_DETAIL_QUERY, apiKey, id));
-                        var personDetailResponse = JsonConvert.DeserializeObject<PersonDetail>(personDetailDocument.GetContents());
-
-                        var combinedCreditDocument = await webCache.GetWebPageAsync(string.Format(COMBINED_CREDIT_QUERY, apiKey, id));
-                        var combinedCreditResponse = JsonConvert.DeserializeObject<CombinedCredits>(combinedCreditDocument.GetContents());
-
-                        PersonCredits personCredits = new PersonCredits
-                        {
-                            PersonDetail = personDetailResponse,
-                            CombinedCredits = combinedCreditResponse
-                        };
-                        personDetailList.Add(personCredits);
-
-                        int count = Interlocked.Increment(ref personCount);
-                        if (count % 10 == 0)
-                        {
-                            var message = $"{count} of {personIds.Count} complete. Download speed {webCache.DownloadSpeed} kB/s.";
-                            Console.WriteLine(message);
-                        }
-                        logger.LogDebug($"Person '{personCredits.PersonDetail.Name}' logged. '{personCredits.PersonDetail?.Birthday?.ToShortDateString()}' - '{personCredits.PersonDetail?.DeathDay?.ToShortDateString()}'");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, $"Error while processing ID '{id}'.");
-                        Console.WriteLine(ex);
-                    }
-                }
-
-                var unpopularPeople = personDetailList.Where(p => p.PersonDetail.Popularity < POPULARITY_THRESHOLD);
-                logger.LogDebug("Following names do not pass popularity threshold:");
-                foreach(var unpopular in unpopularPeople)
-                {
-                    logger.LogDebug($"    {unpopular.PersonDetail.Name} - {unpopular.PersonDetail.Popularity}");
-                }
-
-                var birtlessPeople = personDetailList.Where(p => !p.PersonDetail.Birthday.HasValue);
-                logger.LogDebug("Following names do not have a birthday:");
-                foreach (var birthless in birtlessPeople)
-                {
-                    logger.LogDebug($"    {birthless.PersonDetail.Name}");
-                }
-
-                var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Popularity >= POPULARITY_THRESHOLD && p.PersonDetail.Birthday.HasValue).Select(p => Map(p)).ToArray();
-                Console.WriteLine("Person detail complete");
-                logger.LogDebug("Ended get movie person list.");
-                return persistencePersonList;
-
+                pageLimit = searchResponse.TotalPages;
+                page++;
+                personIds.AddRange(searchResponse.Results.Select(r => r.Id));
             }
-            catch (Exception ex)
+
+            personIds = personIds.Distinct().Where(id => !existingTmdbIds.Contains(id)).ToList();
+
+            Console.WriteLine($"{personIds.Count} person IDs loaded.");
+
+            ConcurrentBag<PersonCredits> personDetailList = new ConcurrentBag<PersonCredits>();
+
+            int personCount = 0;
+            foreach (var id in personIds)
             {
-                logger.LogError(ex, "Error while processing movie person list.");
-                throw;
+                try
+                {
+                    var personDetailDocument = await webCache.GetWebPageAsync(string.Format(PERSON_DETAIL_QUERY, ApiKey, id));
+                    var personDetailResponse = JsonConvert.DeserializeObject<PersonDetail>(personDetailDocument.GetContents());
+
+                    var combinedCreditDocument = await webCache.GetWebPageAsync(string.Format(COMBINED_CREDIT_QUERY, ApiKey, id));
+                    var combinedCreditResponse = JsonConvert.DeserializeObject<CombinedCredits>(combinedCreditDocument.GetContents());
+
+                    PersonCredits personCredits = new PersonCredits
+                    {
+                        PersonDetail = personDetailResponse,
+                        CombinedCredits = combinedCreditResponse
+                    };
+                    personDetailList.Add(personCredits);
+
+                    int count = Interlocked.Increment(ref personCount);
+                    if (count % 10 == 0)
+                    {
+                        var message = $"{count} of {personIds.Count} complete. Download speed {webCache.DownloadSpeed} kB/s.";
+                        Console.WriteLine(message);
+                    }
+                    logger.LogDebug($"Person '{personCredits.PersonDetail.Name}' logged. '{personCredits.PersonDetail?.Birthday?.ToShortDateString()}' - '{personCredits.PersonDetail?.DeathDay?.ToShortDateString()}'");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"Error while processing ID '{id}'.");
+                    Console.WriteLine(ex);
+                }
             }
+
+            var birtlessPeople = personDetailList.Where(p => !p.PersonDetail.Birthday.HasValue);
+            logger.LogDebug("Following names do not have a birthday:");
+            foreach (var birthless in birtlessPeople)
+            {
+                logger.LogDebug($"    {birthless.PersonDetail.Name}");
+            }
+
+            var persistencePersonList = personDetailList.Where(p => p.PersonDetail.Birthday.HasValue).Select(p => Map(p)).ToArray();
+
+            await deathClockContext.TmdbPersons.AddRangeAsync(persistencePersonList);
+            await deathClockContext.SaveChangesAsync();
+
+            Console.WriteLine("Person detail complete");
+            logger.LogDebug("Ended get movie person list.");
         }
 
-        private Persistence.TmdbPerson Map(PersonCredits personCredits)
+        protected override async Task<IEnumerable<TmdbPerson>> FetchExistingPersons()
+        {
+            var persons = await deathClockContext.TmdbPersons.ToArrayAsync();
+            return persons;
+        }
+
+        protected override async Task StoreUpdatedPersons(IEnumerable<TmdbPerson> personsToUpdate)
+        {
+            await deathClockContext.SaveChangesAsync();
+            logger.LogDebug("Save complete");
+        }
+
+        protected override async Task<bool> UpdatePerson(TmdbPerson person)
+        {
+            var personDetailDocument = await webCache.GetWebPageAsync(string.Format(PERSON_DETAIL_QUERY, ApiKey, person.TmdbId));
+            var personDetailResponse = JsonConvert.DeserializeObject<PersonDetail>(personDetailDocument.GetContents());
+
+            var combinedCreditDocument = await webCache.GetWebPageAsync(string.Format(COMBINED_CREDIT_QUERY, ApiKey, person.TmdbId));
+            var combinedCreditResponse = JsonConvert.DeserializeObject<CombinedCredits>(combinedCreditDocument.GetContents());
+
+            PersonCredits personCredits = new PersonCredits
+            {
+                PersonDetail = personDetailResponse,
+                CombinedCredits = combinedCreditResponse
+            };
+
+            var updatedPerson = Map(personCredits);
+            person.BirthDate = updatedPerson.BirthDate;
+            person.DeathDate = updatedPerson.DeathDate;
+            person.IsDead = updatedPerson.IsDead;
+            person.Title = updatedPerson.Title;
+            person.Url = updatedPerson.Url;
+            person.TmdbId = updatedPerson.TmdbId;
+            person.KnownFor = updatedPerson.KnownFor;
+            person.DataSet = updatedPerson.DataSet;
+            person.Popularity = updatedPerson.Popularity;
+            person.RecordedDate = updatedPerson.RecordedDate;
+            person.UpdateDate = updatedPerson.UpdateDate;
+
+            return true;
+        }
+
+        private TmdbPerson Map(PersonCredits personCredits)
         {
             var personDetail = personCredits.PersonDetail;
             int age = -1;
@@ -191,17 +224,6 @@ namespace DeathClock.Tmdb
             };
 
             return person;
-        }
-
-        private DateTime CreatedUpdatedDate()
-        {
-            var minimum = new TimeSpan(7, 0, 0, 0);
-            var maximum = new TimeSpan(14, 0, 0, 0);
-
-            var ticks = random.NextLong(minimum.Ticks, maximum.Ticks) + DateTime.Now.Ticks;
-
-            var date = new DateTime(ticks);
-            return date;
         }
 
         private class PersonCredits

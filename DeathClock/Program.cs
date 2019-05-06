@@ -9,7 +9,6 @@ using RichTea.CommandLineParser;
 using RichTea.WebCache;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DeathClock
@@ -20,6 +19,7 @@ namespace DeathClock
 
         private static int Main(string[] args)
         {
+            int result = 0;
             MethodInvoker command = null;
             try
             {
@@ -27,6 +27,7 @@ namespace DeathClock
             }
             catch (Exception ex)
             {
+                result = -1;
                 Console.WriteLine("Error parsing command:");
                 Console.WriteLine(ex);
             }
@@ -35,7 +36,6 @@ namespace DeathClock
                 try
                 {
                     command.Invoke();
-                    return 0;
                 }
                 catch (Exception ex)
                 {
@@ -51,11 +51,11 @@ namespace DeathClock
                     }
 
                     Console.WriteLine(ex.StackTrace);
-                    return 1;
+                    result = 1;
                 }
             }
-
-            return -1;
+            Console.ReadKey();
+            return result;
         }
 
         [ClCommand("tmdb")]
@@ -86,13 +86,48 @@ namespace DeathClock
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var context = Container.Resolve<DeathClockContext>();
                 var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
 
-                var persons = await tmdbFactory.GetMoviePersonList(tmdbApiKey);
+                tmdbFactory.ApiKey = tmdbApiKey;
+                await tmdbFactory.FindNewPersons();
 
-                await context.TmdbPersons.AddRangeAsync(persons.ToArray());
-                await context.SaveChangesAsync();
+                Console.WriteLine("The Deathclock has finished.");
+            }
+        }
+
+        [ClCommand("tmdb-update")]
+        public static async Task RunDeathDeathclockUpdateTmdbData(
+            [ClArgs("outputDirectory", "od")]string outputDirectory = "Results",
+            [ClArgs("cacheDirectory", "cd")]string cacheDirectory = null,
+            [ClArgs("tmdbApiKey")]string tmdbApiKey = null)
+        {
+            Console.WriteLine("Beginning the Deathclock.");
+            Console.WriteLine("Updating existing TMDB results.");
+
+            var config = new ConfigurationBuilder()
+                .AddUserSecrets("9b9374a9-4a72-4657-a398-2e265456aaf2")
+                .Build();
+
+            if (string.IsNullOrEmpty(tmdbApiKey))
+            {
+                tmdbApiKey = config.GetValue<string>("TmdbApiKey");
+                Console.WriteLine("Using TMDB API key from stored secrets.");
+            }
+            else
+            {
+                Console.WriteLine("Using TMDB API key from command line parameters.");
+            }
+
+            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+
+                Console.WriteLine($"Results will be written to '{outputDirectory}'.");
+
+                var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
+
+                tmdbFactory.ApiKey = tmdbApiKey;
+                await tmdbFactory.UpdateExistingPersons();
 
                 Console.WriteLine("The Deathclock has finished.");
             }
@@ -125,17 +160,16 @@ namespace DeathClock
         /// </summary>
         private static IContainer BuildDiContainer(string resultDirectory, string cacheDirectory)
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging(l =>
-            {
-                l.AddConsole().AddDebug().AddFile(Path.Combine(resultDirectory, "log.txt"), LogLevel.Trace);
-            });
-
             var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
             var config = builder.Build();
             var connectionString = config.GetConnectionString("DeathClockDatabase");
 
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(l =>
+            {
+                l.AddConfiguration(config.GetSection("Logging")).AddConsole().AddDebug().AddFile(Path.Combine(resultDirectory, "log.txt"), LogLevel.Trace);
+            });
             serviceCollection.AddDbContext<DeathClockContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Transient);
 
             var containerBuilder = new ContainerBuilder();
