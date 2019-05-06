@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,9 +15,10 @@ namespace DeathClock.Test
         [TestInitialize]
         public void Setup()
         {
-            var logger = new LoggerFactory().AddConsole().AddDebug().CreateLogger<WikiListFactory>();
+            var logger = Mock.Of<ILogger<WikiListFactory>>();
             wikiListFactory = new WikiListFactory(logger, null);
         }
+
 
         [TestMethod]
         public void CheckLists()
