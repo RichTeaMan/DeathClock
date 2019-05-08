@@ -1,6 +1,4 @@
-﻿using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using DeathClock.Persistence;
+﻿using DeathClock.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +13,6 @@ namespace DeathClock
 {
     internal class Program
     {
-        private static IContainer Container { get; set; }
-
         private static int Main(string[] args)
         {
             int result = 0;
@@ -80,13 +76,13 @@ namespace DeathClock
                 Console.WriteLine("Using TMDB API key from command line parameters.");
             }
 
-            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
+            using (var container = BuildDiContainer(outputDirectory, cacheDirectory).CreateScope())
             {
                 Directory.CreateDirectory(outputDirectory);
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
+                var tmdbFactory = container.ServiceProvider.GetRequiredService<Tmdb.TmdbFactory>();
 
                 tmdbFactory.ApiKey = tmdbApiKey;
                 await tmdbFactory.FindNewPersons();
@@ -118,13 +114,13 @@ namespace DeathClock
                 Console.WriteLine("Using TMDB API key from command line parameters.");
             }
 
-            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
+            using (var container = BuildDiContainer(outputDirectory, cacheDirectory).CreateScope())
             {
                 Directory.CreateDirectory(outputDirectory);
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var tmdbFactory = Container.Resolve<Tmdb.TmdbFactory>();
+                var tmdbFactory = container.ServiceProvider.GetRequiredService<Tmdb.TmdbFactory>();
 
                 tmdbFactory.ApiKey = tmdbApiKey;
                 await tmdbFactory.UpdateExistingPersons();
@@ -141,13 +137,13 @@ namespace DeathClock
         {
             Console.WriteLine("Beginning the Deathclock.");
 
-            using (Container = BuildDiContainer(outputDirectory, cacheDirectory))
+            using (var container = BuildDiContainer(outputDirectory, cacheDirectory).CreateScope())
             {
                 Directory.CreateDirectory(outputDirectory);
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var deathClock = Container.Resolve<WikipediaPersonFactory>();
+                var deathClock = container.ServiceProvider.GetRequiredService<WikipediaPersonFactory>();
                 deathClock.OutputDirectory = outputDirectory;
                 deathClock.ListArticles = listArticles;
                 await deathClock.FindNewPersons();
@@ -159,7 +155,7 @@ namespace DeathClock
         /// <summary>
         /// Builds the dependency injection container.
         /// </summary>
-        private static IContainer BuildDiContainer(string resultDirectory, string cacheDirectory)
+        private static IServiceProvider BuildDiContainer(string resultDirectory, string cacheDirectory)
         {
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
@@ -178,16 +174,15 @@ namespace DeathClock
             {
                 WebCache.DefaultCachePath = cacheDirectory;
             }
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.Populate(serviceCollection);
-            containerBuilder.RegisterType<WikipediaPersonFactory>().InstancePerDependency();
-            containerBuilder.RegisterType<WikiListFactory>().InstancePerDependency();
-            containerBuilder.RegisterType<WikiUtility>().InstancePerDependency();
-            containerBuilder.RegisterType<DeathClockContext>().InstancePerDependency();
-            containerBuilder.RegisterType<WikipediaPersonMapper>().InstancePerDependency();
-            containerBuilder.RegisterType<Tmdb.TmdbFactory>().InstancePerDependency();
-            containerBuilder.RegisterType<WebCache>().InstancePerDependency();
-            return containerBuilder.Build();
+
+            serviceCollection.AddScoped<WikipediaPersonFactory>();
+            serviceCollection.AddScoped<WikiListFactory>();
+            serviceCollection.AddScoped<WikiUtility>();
+            serviceCollection.AddScoped<DeathClockContext>();
+            serviceCollection.AddScoped<WikipediaPersonMapper>();
+            serviceCollection.AddScoped<Tmdb.TmdbFactory>();
+            serviceCollection.AddScoped<WebCache>();
+            return serviceCollection.BuildServiceProvider();
         }
     }
 }
