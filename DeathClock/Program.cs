@@ -180,14 +180,13 @@ namespace DeathClock
             }
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
-            containerBuilder.RegisterType<WikipediaPersonFactory>().SingleInstance();
-            containerBuilder.RegisterType<PersonFactory>().SingleInstance();
-            containerBuilder.RegisterType<WikiListFactory>().SingleInstance();
-            containerBuilder.RegisterType<WikiUtility>().SingleInstance();
-            containerBuilder.RegisterType<DeathClockContext>().SingleInstance();
-            containerBuilder.RegisterType<WikipediaPersonMapper>().SingleInstance();
-            containerBuilder.RegisterType<Tmdb.TmdbFactory>().SingleInstance();
-            containerBuilder.RegisterType<WebCache>().SingleInstance();
+            containerBuilder.RegisterType<WikipediaPersonFactory>().InstancePerDependency();
+            containerBuilder.RegisterType<WikiListFactory>().InstancePerDependency();
+            containerBuilder.RegisterType<WikiUtility>().InstancePerDependency();
+            containerBuilder.RegisterType<DeathClockContext>().InstancePerDependency();
+            containerBuilder.RegisterType<WikipediaPersonMapper>().InstancePerDependency();
+            containerBuilder.RegisterType<Tmdb.TmdbFactory>().InstancePerDependency();
+            containerBuilder.RegisterType<WebCache>().InstancePerDependency();
             return containerBuilder.Build();
         }
     }

@@ -7,12 +7,12 @@ namespace DeathClock.Test
     [TestClass]
     public class DescriptionTest
     {
-        private PersonFactory personFactory;
+        private WikiUtility wikiUtility;
 
         [TestInitialize]
         public void Setup()
         {
-            personFactory = new PersonFactory(null, null);
+            wikiUtility = new WikiUtility(null, null);
         }
 
         [TestMethod]
@@ -20,7 +20,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/RichardEberhart.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDescription = "Poet";
 
@@ -32,7 +32,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/ElizabethII.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDescription = "Queen of the United Kingdom and the other Commonwealth realms";
 
@@ -44,7 +44,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/SonHouse.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDescription = "Musician";
 
@@ -56,7 +56,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/WilliamGrover-Williams.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDescription = "Racing driver";
 
@@ -68,7 +68,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/PopeCyrilVIofAlexandria.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDescription = "Pope of the Coptic Orthodox Church of Alexandria";
 

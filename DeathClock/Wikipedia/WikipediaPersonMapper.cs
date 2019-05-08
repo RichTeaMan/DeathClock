@@ -1,9 +1,7 @@
 ﻿using DeathClock.Persistence;
+using DeathClock.Wikipedia.Models;
 using RichTea.Common.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using PersistencePerson = DeathClock.Persistence.WikipediaPerson;
 
@@ -13,7 +11,7 @@ namespace DeathClock
     {
         private readonly Random random = new Random();
 
-        public PersistencePerson Map(Person person)
+        public PersistencePerson Map(WikipediaJsonPerson person)
         {
             PersistencePerson persistencePerson = new PersistencePerson
             {

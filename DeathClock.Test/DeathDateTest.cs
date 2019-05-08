@@ -7,12 +7,12 @@ namespace DeathClock.Test
 [TestClass]
     public class DeathDateTest
     {
-        private PersonFactory personFactory;
+        private WikiUtility wikiUtility;
 
         [TestInitialize]
         public void Setup()
         {
-            personFactory = new PersonFactory(null, null);
+            wikiUtility = new WikiUtility(null, null);
         }
 
         [TestMethod]
@@ -20,7 +20,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/EricLiddell.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
             
             var expectedDeathDate = new DateTime(1945, 2, 21);
 
@@ -32,7 +32,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/HHPrice.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1984, 11, 26);
 
@@ -44,7 +44,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/JamesEKelly.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1933, 05, 25);
 
@@ -56,7 +56,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/MalcolmCowley.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1989, 03, 27);
 
@@ -68,7 +68,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/AnniAlbers.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1994, 05, 09);
 
@@ -80,7 +80,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/GladysTantaquidgeon.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(2005, 11, 01);
 
@@ -92,7 +92,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/EricDWalrond.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1966, 08, 08);
 
@@ -104,7 +104,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/LesterJMaitland.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1990, 03, 27);
 
@@ -116,7 +116,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/EllamaeEllisLeague.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1991, 03, 04);
 
@@ -128,7 +128,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/RousasRushdoony.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(2001, 02, 08);
 
@@ -140,7 +140,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/HaroldOsborn.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1975, 04, 05);
 
@@ -152,7 +152,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/UkichiroNakaya.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1962, 04, 11);
 
@@ -164,7 +164,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/BirendranathSircar.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1980, 11, 28);
 
@@ -176,7 +176,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/RichardEberhart.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(2005, 06, 09);
 
@@ -188,7 +188,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/AdolphMurie.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1974, 08, 16);
 
@@ -200,7 +200,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/GenrikhLyushkov.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1945, 08, 01);
 
@@ -212,7 +212,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/TahirDizdari.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1972, 05, 09);
 
@@ -224,7 +224,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/TonySisti.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1983, 01, 01);
 
@@ -236,7 +236,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/SonHouse.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1988, 10, 19);
 
@@ -248,7 +248,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/WilliamGrover-Williams.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1945, 03, 01);
 
@@ -260,7 +260,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/PopeCyrilVIofAlexandria.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1971, 03, 09);
 
@@ -272,7 +272,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/GlennMiller.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1944, 12, 15);
 
@@ -284,7 +284,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/AnneValliantBurnettTandy.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1980, 01, 01);
 
@@ -296,7 +296,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/PremendraMitra.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1988, 05, 02);
 
@@ -308,7 +308,7 @@ namespace DeathClock.Test
         {
             string content = File.ReadAllText("WikiJson/MikeMilligan.json");
 
-            var person = personFactory.CreateFromContent(content);
+            var person = wikiUtility.CreateFromContent(content);
 
             var expectedDeathDate = new DateTime(1978, 05, 08);
 

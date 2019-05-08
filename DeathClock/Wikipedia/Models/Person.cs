@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DeathClock
+namespace DeathClock.Wikipedia.Models
 {
     /// <summary>
-    /// Contains person details.
+    /// Contains person details from a Wikipedia JSON file.
     /// </summary>
-    public class Person
+    public class WikipediaJsonPerson
     {
         
         public string Name { get; private set; }
@@ -63,7 +63,7 @@ namespace DeathClock
             }
         }
 
-        public Person(string name, DateTime birthDate, DateTime? deathDate, int deathWordCount, string title, int wordCount, string knownFor)
+        public WikipediaJsonPerson(string name, DateTime birthDate, DateTime? deathDate, int deathWordCount, string title, int wordCount, string knownFor)
         {
             Name = name;
             BirthDate = birthDate;

@@ -1,4 +1,5 @@
 ﻿using DeathClock.Persistence;
+using DeathClock.Wikipedia.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RichTea.WebCache;
@@ -23,9 +24,9 @@ namespace DeathClock
         private readonly ILogger<WikipediaPersonFactory> logger;
 
         /// <summary>
-        /// Person factory.
+        /// Wiki utility.
         /// </summary>
-        private readonly PersonFactory personFactory;
+        private readonly WikiUtility wikiUtility;
 
         /// <summary>
         /// Wiki list factory.
@@ -53,14 +54,14 @@ namespace DeathClock
 
 
         public WikipediaPersonFactory(ILogger<WikipediaPersonFactory> logger,
-            PersonFactory personFactory,
+            WikiUtility wikiUtility,
             WikiListFactory wikiListFactory,
             WebCache webCache,
             DeathClockContext deathClockContext,
             WikipediaPersonMapper personMapper) : base(logger)
         {
             this.logger = logger;
-            this.personFactory = personFactory;
+            this.wikiUtility = wikiUtility;
             this.wikiListFactory = wikiListFactory;
             this.webCache = webCache;
             this.deathClockContext = deathClockContext;
@@ -81,7 +82,7 @@ namespace DeathClock
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
-            var people = new ConcurrentBag<Person>();
+            var people = new ConcurrentBag<WikipediaJsonPerson>();
             int totals = titles.Count();
             int count = 0;
             int errors = 0;
@@ -102,10 +103,10 @@ namespace DeathClock
                     block.Add(title);
                 }
 
-                var tasks = new ConcurrentBag<Task<Person>>();
+                var tasks = new ConcurrentBag<Task<WikipediaJsonPerson>>();
                 Parallel.ForEach(block, title =>
                 {
-                    tasks.Add(personFactory.Create(title));
+                    tasks.Add(wikiUtility.Create(title));
                 });
 
                 var concurrentMessage = $"{webCache.ConcurrentDownloads} concurrent downloads";
@@ -159,8 +160,6 @@ namespace DeathClock
             await deathClockContext.SaveChangesAsync();
 
             File.WriteAllLines(Path.Combine(OutputDirectory, "InvalidPeople.txt"), invalidPeople.Select(ip => $"{ip.Name} - {ip.Reason}").ToArray());
-            File.WriteAllLines(Path.Combine(OutputDirectory, "Errors.txt"), personFactory.ClearErrorLog());
-
         }
 
         /// <summary>
@@ -192,7 +191,7 @@ namespace DeathClock
 
         protected override async Task<bool> UpdatePerson(WikipediaPerson person)
         {
-            var wikiPerson = await personFactory.CreateFromJsonUrl(person.WikipediaUrl);
+            var wikiPerson = await wikiUtility.CreateFromJsonUrl(person.WikipediaUrl);
             var updatedPerson = personMapper.Map(wikiPerson);
 
             person.BirthDate = updatedPerson.BirthDate;
