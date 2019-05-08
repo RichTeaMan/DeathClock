@@ -172,6 +172,11 @@ namespace DeathClock
             });
             serviceCollection.AddDbContext<DeathClockContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Transient);
 
+            WebCache.DefaultCacheName = "DeathListCache";
+            if (!string.IsNullOrEmpty(cacheDirectory))
+            {
+                WebCache.DefaultCachePath = cacheDirectory;
+            }
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
             containerBuilder.RegisterType<DeathClock>().SingleInstance();
@@ -181,18 +186,7 @@ namespace DeathClock
             containerBuilder.RegisterType<DeathClockContext>().SingleInstance();
             containerBuilder.RegisterType<WikipediaPersonMapper>().SingleInstance();
             containerBuilder.RegisterType<Tmdb.TmdbFactory>().SingleInstance();
-
-            WebCache webCache;
-            if (string.IsNullOrEmpty(cacheDirectory))
-            {
-                webCache = new WebCache("DeathListCache");
-            }
-            else
-            {
-                webCache = new WebCache("DeathListCache", cacheDirectory);
-            }
-
-            containerBuilder.RegisterInstance(webCache);
+            containerBuilder.RegisterType<WebCache>().SingleInstance();
             return containerBuilder.Build();
         }
     }

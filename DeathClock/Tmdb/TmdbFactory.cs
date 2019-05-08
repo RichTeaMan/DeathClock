@@ -133,10 +133,10 @@ namespace DeathClock.Tmdb
 
         protected override async Task<bool> UpdatePerson(TmdbPerson person)
         {
-            var personDetailDocument = await webCache.GetWebPageAsync(string.Format(PERSON_DETAIL_QUERY, ApiKey, person.TmdbId));
+            var personDetailDocument = await webCache.GetWebPageAsync(string.Format(PERSON_DETAIL_QUERY, ApiKey, person.TmdbId), person.UpdateDate);
             var personDetailResponse = JsonConvert.DeserializeObject<PersonDetail>(personDetailDocument.GetContents());
 
-            var combinedCreditDocument = await webCache.GetWebPageAsync(string.Format(COMBINED_CREDIT_QUERY, ApiKey, person.TmdbId));
+            var combinedCreditDocument = await webCache.GetWebPageAsync(string.Format(COMBINED_CREDIT_QUERY, ApiKey, person.TmdbId), person.UpdateDate);
             var combinedCreditResponse = JsonConvert.DeserializeObject<CombinedCredits>(combinedCreditDocument.GetContents());
 
             PersonCredits personCredits = new PersonCredits
