@@ -2,7 +2,7 @@
   "profiles": {
     "DeathClock": {
       "commandName": "Project",
-      "commandLineArgs": "tmdb-update"
+      "commandLineArgs": "-list List_of_English_people List_of_Scots List_of_Welsh_people List_of_Irish_people Lists_of_Americans"
     }
   }
 }

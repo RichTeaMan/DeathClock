@@ -147,9 +147,10 @@ namespace DeathClock
 
                 Console.WriteLine($"Results will be written to '{outputDirectory}'.");
 
-                var deathClock = Container.Resolve<DeathClock>();
+                var deathClock = Container.Resolve<WikipediaPersonFactory>();
                 deathClock.OutputDirectory = outputDirectory;
-                await deathClock.Start(listArticles);
+                deathClock.ListArticles = listArticles;
+                await deathClock.FindNewPersons();
 
                 Console.WriteLine("The Deathclock has finished.");
             }
@@ -179,7 +180,7 @@ namespace DeathClock
             }
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceCollection);
-            containerBuilder.RegisterType<DeathClock>().SingleInstance();
+            containerBuilder.RegisterType<WikipediaPersonFactory>().SingleInstance();
             containerBuilder.RegisterType<PersonFactory>().SingleInstance();
             containerBuilder.RegisterType<WikiListFactory>().SingleInstance();
             containerBuilder.RegisterType<WikiUtility>().SingleInstance();

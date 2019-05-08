@@ -12,7 +12,7 @@ namespace DeathClock.Test
         [TestInitialize]
         public void Setup()
         {
-            personFactory = new PersonFactory(null);
+            personFactory = new PersonFactory(null, null);
         }
 
         [TestMethod]

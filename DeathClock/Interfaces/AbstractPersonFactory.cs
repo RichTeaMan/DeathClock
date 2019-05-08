@@ -5,7 +5,7 @@ using DeathClock.Persistence;
 using Microsoft.Extensions.Logging;
 using RichTea.Common.Extensions;
 
-namespace DeathClock.Tmdb
+namespace DeathClock
 {
     public abstract class AbstractPersonFactory<TPerson>: IPersonFactory<TPerson> where TPerson : BasePerson
     {

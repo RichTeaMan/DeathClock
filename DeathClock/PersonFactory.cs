@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RichTea.WebCache;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace DeathClock
 {
     public class PersonFactory
     {
-        private WikiUtility wikiUtility;
+        private readonly WikiUtility wikiUtility;
+
+        private readonly WebCache webCache;
 
         public DateParser BirthDateParser { get; private set; }
         public DateParser DeathDateParser { get; private set; }
@@ -19,13 +22,16 @@ namespace DeathClock
 
         public string[] DeathWords { get; private set; } = new string[] { "cancer", "ill", "sick", "accident", "heart attack", "stroke" };
 
-        private ConcurrentStack<string> errors;
+        private ConcurrentStack<string> errors = new ConcurrentStack<string>();
 
-        public PersonFactory(WikiUtility wikiUtility)
+        private readonly static string redirectContains = "#REDIRECT";
+        private readonly static Regex redirectRegex = new Regex(@"(?<=#REDIRECT \[\[)[^\]]+");
+
+        public PersonFactory(WikiUtility wikiUtility, WebCache webCache)
         {
             this.wikiUtility = wikiUtility;
+            this.webCache = webCache;
 
-            errors = new ConcurrentStack<string>();
             BirthDateParser = new DateParser()
                 .AddDateParser(@"(?i)(?<={{birth[ -_]date( and age|)\|((d|m)f=y(es|)\||))\d+\|\d+\|\d+",
                     "yyyy|M|d")
@@ -86,6 +92,19 @@ namespace DeathClock
             string jsonContent = await wikiUtility.GetPage(title);
             return CreateFromContent(jsonContent);
 
+        }
+
+        public async Task<Person> CreateFromJsonUrl(string jsonUrl)
+        {
+            var document = await webCache.GetWebPageAsync(jsonUrl);
+            string contents = document.GetContents();
+
+            // some pages signal a redirect. The redirect should be returned instead
+            if (contents.Contains(redirectContains))
+            {
+                throw new InvalidOperationException($"JsonUrl contains a redirect: {jsonUrl}");
+            }
+            return CreateFromContent(contents);
         }
 
         public Person CreateFromContent(string jsonContent)

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DeathClock.Persistence;
 
-namespace DeathClock.Tmdb
+namespace DeathClock
 {
     public interface IPersonFactory<TPerson> where TPerson : BasePerson
     {

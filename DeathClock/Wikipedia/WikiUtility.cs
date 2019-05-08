@@ -1,7 +1,5 @@
 ﻿using RichTea.WebCache;
 using System;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -45,7 +43,7 @@ namespace DeathClock
             return contents;
         }
 
-        private string CleanTitle(string title)
+        public string CleanTitle(string title)
         {
             // title before pipe is the page that should be linked, after pipe is the text for
             // that particular link

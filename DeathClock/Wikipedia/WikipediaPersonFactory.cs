@@ -1,4 +1,5 @@
 ﻿using DeathClock.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RichTea.WebCache;
 using System;
@@ -14,12 +15,12 @@ namespace DeathClock
     /// <summary>
     /// Death clock.
     /// </summary>
-    public class DeathClock
+    public class WikipediaPersonFactory : AbstractPersonFactory<WikipediaPerson>
     {
         /// <summary>
         /// Logger.
         /// </summary>
-        private readonly ILogger<DeathClock> logger;
+        private readonly ILogger<WikipediaPersonFactory> logger;
 
         /// <summary>
         /// Person factory.
@@ -45,13 +46,18 @@ namespace DeathClock
         /// </summary>
         public string OutputDirectory { get; set; } = "Results";
 
+        /// <summary>
+        /// Gets or sets list URLs to seed persons with.
+        /// </summary>
+        public string[] ListArticles { get; set; }
 
-        public DeathClock(ILogger<DeathClock> logger,
+
+        public WikipediaPersonFactory(ILogger<WikipediaPersonFactory> logger,
             PersonFactory personFactory,
             WikiListFactory wikiListFactory,
             WebCache webCache,
             DeathClockContext deathClockContext,
-            WikipediaPersonMapper personMapper)
+            WikipediaPersonMapper personMapper) : base(logger)
         {
             this.logger = logger;
             this.personFactory = personFactory;
@@ -61,13 +67,17 @@ namespace DeathClock
             this.personMapper = personMapper;
         }
 
-        public async Task Start(string[] listArticles)
+        public override async Task FindNewPersons()
         {
+            if (ListArticles?.Any() != true)
+            {
+                logger.LogError("List articles must be set.");
+            }
             logger.LogTrace("Deathclock started.");
             logger.LogInformation($"Cache directory: {webCache.CachePath}");
 
             Console.WriteLine("Finding articles...");
-            var titles = await FindArticleTitles(listArticles);
+            var titles = await FindArticleTitles(ListArticles);
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
 
@@ -172,6 +182,39 @@ namespace DeathClock
             }
 
             return results.Distinct().OrderBy(p => p).ToList();
+        }
+
+
+        protected override async Task<IEnumerable<WikipediaPerson>> FetchExistingPersons()
+        {
+            return await deathClockContext.WikipediaPersons.ToArrayAsync();
+        }
+
+        protected override async Task<bool> UpdatePerson(WikipediaPerson person)
+        {
+            var wikiPerson = await personFactory.CreateFromJsonUrl(person.WikipediaUrl);
+            var updatedPerson = personMapper.Map(wikiPerson);
+
+            person.BirthDate = updatedPerson.BirthDate;
+            person.DeathDate = updatedPerson.DeathDate;
+            person.IsDead = updatedPerson.IsDead;
+            person.Title = updatedPerson.Title;
+            person.WikipediaUrl = updatedPerson.WikipediaUrl;
+            person.IsStub = updatedPerson.IsStub;
+            person.WordCount = updatedPerson.WordCount;
+            person.DeathWordCount = updatedPerson.DeathWordCount;
+            person.KnownFor = updatedPerson.KnownFor;
+            person.RecordedDate = updatedPerson.RecordedDate;
+            person.UpdateDate = updatedPerson.UpdateDate;
+            person.DataSet = updatedPerson.DataSet;
+
+            return true;
+        }
+
+        protected override async Task StoreUpdatedPersons(IEnumerable<WikipediaPerson> personsToUpdate)
+        {
+            await deathClockContext.SaveChangesAsync();
+            logger.LogDebug("Save complete");
         }
     }
 }
