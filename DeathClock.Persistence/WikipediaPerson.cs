@@ -9,10 +9,6 @@ namespace DeathClock.Persistence
     public class WikipediaPerson : BasePerson
     {
         [Required]
-        [MaxLength(Constants.MAX_URL_LENGTH)]
-        public string WikipediaUrl { get; set; }
-
-        [Required]
         public int WordCount { get; set; }
 
         [Required]

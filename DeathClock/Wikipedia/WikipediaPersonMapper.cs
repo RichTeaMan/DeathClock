@@ -19,7 +19,7 @@ namespace DeathClock
                 DeathDate = person.DeathDate,
                 IsDead = person.IsDead,
                 Title = person.Title,
-                WikipediaUrl = person.JsonUrl,
+                Url = person.JsonUrl,
                 IsStub = person.IsStub,
                 WordCount = person.WordCount,
                 DeathWordCount = person.DeathWordCount,

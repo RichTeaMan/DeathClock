@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RichTea.WebCache;
 using System;
+using System.Collections.Async;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -90,68 +91,29 @@ namespace DeathClock
 
             Console.WriteLine($"Scanning {titles.Count()} articles.");
 
-
-            // batch titles in groups of 100 and process them concurrently
-
-            var titleQueue = new Queue<string>(titles);
-            while (titleQueue.Any())
+            await titles.ParallelForEachAsync(async title =>
             {
-                var block = new List<string>();
-
-                while (block.Count < 100 && titleQueue.TryDequeue(out string title))
-                {
-                    block.Add(title);
-                }
-
-                var tasks = new ConcurrentBag<Task<WikipediaJsonPerson>>();
-                Parallel.ForEach(block, title =>
-                {
-                    tasks.Add(wikiUtility.Create(title));
-                });
-
-                var concurrentMessage = $"{webCache.ConcurrentDownloads} concurrent downloads";
-                Console.WriteLine(concurrentMessage);
-
                 try
                 {
-                    await Task.WhenAll(tasks.ToArray());
+                    var wikipediaJsonPerson = await wikiUtility.Create(title);
+                    people.Add(wikipediaJsonPerson);
                 }
                 catch (Exception ex)
                 {
                     logger.LogTrace(ex, "Errors occured.");
+                    var invalidPerson = new InvalidPerson() { Name = "Exception", Reason = ex.Message };
+                    invalidPeople.Add(invalidPerson);
+                    Interlocked.Increment(ref errors);
                 }
 
-                Parallel.ForEach(tasks, personTask =>
+                int _c = Interlocked.Increment(ref count);
+                if (_c % 100 == 0)
                 {
-                    if (personTask.IsCompletedSuccessfully)
-                    {
-                        var person = personTask.Result;
-                        if (person != null)
-                        {
-                            people.Add(person);
-                        }
-                        else
-                        {
-                            var invalidPerson = new InvalidPerson() { Name = "Unknown", Reason = "Null object. " };
-                            invalidPeople.Add(invalidPerson);
-                            Interlocked.Increment(ref invalids);
-                        }
-                    }
-                    else
-                    {
-                        var invalidPerson = new InvalidPerson() { Name = "Exception", Reason = personTask.Exception?.Message };
-                        invalidPeople.Add(invalidPerson);
-                        Interlocked.Increment(ref errors);
-                    }
-                    int _c = Interlocked.Increment(ref count);
-                    if (_c % 100 == 0)
-                    {
-                        var message = $"{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. Download speed {webCache.DownloadSpeed} kB/s.";
-                        Console.WriteLine(message);
-                    }
+                    var message = $"{_c} of {totals} complete. {errors} errors. {invalids} invalid articles. Download speed {webCache.DownloadSpeed} kB/s.";
+                    Console.WriteLine(message);
+                }
 
-                });
-            }
+            });
 
             Console.WriteLine($"{people.Count} people found.");
 
@@ -191,14 +153,14 @@ namespace DeathClock
 
         protected override async Task<bool> UpdatePerson(WikipediaPerson person)
         {
-            var wikiPerson = await wikiUtility.CreateFromJsonUrl(person.WikipediaUrl);
+            var wikiPerson = await wikiUtility.CreateFromJsonUrl(person.Url);
             var updatedPerson = personMapper.Map(wikiPerson);
 
             person.BirthDate = updatedPerson.BirthDate;
             person.DeathDate = updatedPerson.DeathDate;
             person.IsDead = updatedPerson.IsDead;
             person.Title = updatedPerson.Title;
-            person.WikipediaUrl = updatedPerson.WikipediaUrl;
+            person.Url = updatedPerson.Url;
             person.IsStub = updatedPerson.IsStub;
             person.WordCount = updatedPerson.WordCount;
             person.DeathWordCount = updatedPerson.DeathWordCount;

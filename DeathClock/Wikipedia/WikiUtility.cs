@@ -177,7 +177,7 @@ namespace DeathClock
                 {
                     logger?.LogError($"{personTitle} has a death date but no birth date.");
                 }
-                return null;
+                throw new InvalidOperationException($"{personTitle} has no birth date");
             }
             var personBirthDate = birth.Value;
             var personDeathDate = death;
