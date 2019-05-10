@@ -86,10 +86,9 @@ namespace DeathClock
             DescriptionRegexList = descriptionRegexs.Select(r => new Regex(r, RegexOptions.Compiled)).ToArray();
         }
 
-        public async Task<string> GetPage(string title)
+        public async Task<string> GetPageFromTitle(string title)
         {
-            title = CleanTitle(title);
-            string urlStr = string.Format(apiUrl, title);
+            string urlStr = CreateLinkFromTitle(title);
             var document = await webCache.GetWebPageAsync(urlStr);
             string contents = document.GetContents();
 
@@ -104,10 +103,35 @@ namespace DeathClock
                     if (title.ToLowerInvariant() == redirectTitle.ToLowerInvariant())
                         throw new Exception("Endless redirect loop detected.");
 
-                    contents = await GetPage(redirectTitle);
+                    contents = await GetPageFromTitle(redirectTitle);
                 }
             }
             return contents;
+        }
+
+        public async Task<string> GetPageFromUrl(string url)
+        {
+            var document = await webCache.GetWebPageAsync(url);
+            string contents = document.GetContents();
+
+            // some pages signal a redirect. The redirect should be returned instead
+            if (contents.Contains(redirectContains))
+            {
+                var redirect = redirectRegex.Match(contents);
+                if (redirect.Success)
+                {
+                    string redirectTitle = CleanTitle(redirect.Value);
+                    contents = await GetPageFromTitle(redirectTitle);
+                }
+            }
+            return contents;
+        }
+
+        public string CreateLinkFromTitle(string title)
+        {
+            var cleanedTitle = CleanTitle(title);
+            string urlStr = string.Format(apiUrl, cleanedTitle);
+            return urlStr;
         }
 
         public string CleanTitle(string title)
@@ -133,22 +157,23 @@ namespace DeathClock
 
         public async Task<WikipediaJsonPerson> Create(string title)
         {
-            string jsonContent = await GetPage(title);
+            string jsonContent = await GetPageFromTitle(title);
             return CreateFromContent(jsonContent);
 
         }
 
         public async Task<WikipediaJsonPerson> CreateFromJsonUrl(string jsonUrl)
         {
-            var document = await webCache.GetWebPageAsync(jsonUrl);
-            string contents = document.GetContents();
+            string contents = await GetPageFromUrl(jsonUrl);
 
             // some pages signal a redirect. The redirect should be returned instead
             if (contents.Contains(redirectContains))
             {
                 throw new InvalidOperationException($"JsonUrl contains a redirect: {jsonUrl}");
             }
-            return CreateFromContent(contents);
+            var person = CreateFromContent(contents);
+            person.JsonUrl = jsonUrl;
+            return person;
         }
 
         public WikipediaJsonPerson CreateFromContent(string jsonContent)

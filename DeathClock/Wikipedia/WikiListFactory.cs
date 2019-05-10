@@ -35,7 +35,7 @@ namespace DeathClock
         public async Task<WikiListPage> Create(string title)
         {
             logger.LogTrace($"GetPeopleTitles started. List title: {title}.");
-            string jsonContent = await wikiUtility.GetPage(title);
+            string jsonContent = await wikiUtility.GetPageFromTitle(title);
             return CreateFromContent(jsonContent);
 
         }

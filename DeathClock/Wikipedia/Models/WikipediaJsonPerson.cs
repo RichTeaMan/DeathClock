@@ -47,7 +47,7 @@ namespace DeathClock.Wikipedia.Models
             get { return WordCount < 2000; }
         }
 
-        public string Url
+        public string WikipediaUrl
         {
             get
             {
@@ -55,15 +55,16 @@ namespace DeathClock.Wikipedia.Models
             }
         }
 
-        public string JsonUrl
-        {
-            get
-            {
-                return string.Format(WikiUtility.apiUrl, Title);
-            }
-        }
+        public string JsonUrl { get; set; }
 
-        public WikipediaJsonPerson(string name, DateTime birthDate, DateTime? deathDate, int deathWordCount, string title, int wordCount, string knownFor)
+        public WikipediaJsonPerson(
+            string name,
+            DateTime birthDate,
+            DateTime? deathDate,
+            int deathWordCount,
+            string title,
+            int wordCount,
+            string knownFor)
         {
             Name = name;
             BirthDate = birthDate;
