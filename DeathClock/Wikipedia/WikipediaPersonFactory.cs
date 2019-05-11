@@ -78,36 +78,32 @@ namespace DeathClock
             logger.LogTrace("Deathclock started.");
             logger.LogInformation($"Cache directory: {webCache.CachePath}");
 
-            IEnumerable<string> links;
+            Console.WriteLine("Loading existing article titles...");
+            var existingLinks = new HashSet<string>(deathClockContext.WikipediaPersons.Select(p => p.Url).ToArray());
+            Console.WriteLine($"Loaded {existingLinks.Count} existing articles.");
 
-            {
-                Console.WriteLine("Loading existing article titles...");
-                var existingTitles = new HashSet<string>(deathClockContext.WikipediaPersons.Select(p => p.Url).ToArray());
-                Console.WriteLine($"Loaded {existingTitles.Count} existing articles.");
-
-                Console.WriteLine("Finding articles...");
-                var allLinks = (await FindArticleTitles(ListArticles)).Select(t => wikiUtility.CreateLinkFromTitle(t)).ToArray();
-
-                links = allLinks.Where(t => !existingTitles.Contains(t)).ToArray();
-                Console.WriteLine($"{allLinks.Count()} found, {links.Count()} new titles to be scanned.");
-            }
+            Console.WriteLine("Finding articles...");
+            var allLinks = (await FindArticleTitles(ListArticles)).Select(t => wikiUtility.CreateLinkFromTitle(t)).ToArray();
 
             var invalidPeople = new ConcurrentBag<InvalidPerson>();
             var people = new ConcurrentBag<WikipediaJsonPerson>();
-            int totals = links.Count();
+            int totals = allLinks.Count();
             int count = 0;
             int errors = 0;
             int invalids = 0;
 
 
-            Console.WriteLine($"Scanning {links.Count()} articles.");
+            Console.WriteLine($"Scanning {allLinks.Count()} articles.");
 
-            await links.ParallelForEachAsync(async link =>
+            await allLinks.ParallelForEachAsync(async link =>
             {
                 try
                 {
                     var wikipediaJsonPerson = await wikiUtility.CreateFromJsonUrl(link);
-                    people.Add(wikipediaJsonPerson);
+                    if (!existingLinks.Contains(wikipediaJsonPerson.JsonUrl))
+                    {
+                        people.Add(wikipediaJsonPerson);
+                    }
                 }
                 catch (Exception ex)
                 {
